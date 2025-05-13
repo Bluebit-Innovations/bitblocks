@@ -1,59 +1,102 @@
-# Module: IAM Policy Terraform Module
 
-This module creates and manages AWS IAM policies with comprehensive security controls including:
- - IAM policy creation and attachments to groups, users, and roles
- - SSO integration for permission set policy attachments
- - Security monitoring through IAM Access Analyzer
- - Audit logging via CloudTrail
- - Environment-specific service control policies
+# 🛡️ IAM Policy Module
 
-## Usage
+This Terraform module allows you to:
+
+- Create an AWS IAM policy
+- Attach it to one or more IAM roles
+- Attach managed policies to an AWS SSO permission set
+- Assign an inline policy to an SSO permission set
+
+It is production-ready, supports modular use, and works with both greenfield and brownfield AWS environments.
+
+---
+
+## 🚀 Usage
+
+### ✅ Basic Example (No SSO)
 
 ```hcl
-module "iam_policy" {
-    source = "./terraform-modules/iam/iam_policy"
-    
-    name        = "example-policy"
-    path        = "/"
-    description = "Example policy for demonstration"
-    policy      = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
-            {
-                Effect = "Allow"
-                Action = [
-                    "s3:ListBucket"
-                ]
-                Resource = [
-                    "arn:aws:s3:::example-bucket"
-                ]
-            }
-        ]
-    })
+module "iam_policy_basic" {
+  source      = "../../modules/iam_policy"
+
+  name        = "basic-readonly-policy"
+  description = "Grants read-only access to S3"
+  path        = "/"
+
+  policy_json = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = ["s3:ListBucket", "s3:GetObject"],
+        Resource = "*"
+      }
+    ]
+  })
+
+  attach_to_roles = ["readonly-role"]
+  enable_sso      = false
 }
 ```
 
-## Input Variables
+### 🔐 SSO Enabled Example with Managed Policies
 
-| Name | Description | Type | Required | Default |
-|------|-------------|------|----------|---------|
-| name | The name of the policy | string | yes | - |
-| path | The path of the policy | string | no | "/" |
-| description | The description of the policy | string | yes | - |
-| policy | The policy document | string | yes | - |
-| groups | The list of IAM groups to attach the policy to | list(string) | no | [] |
-| users | The list of IAM users to attach the policy to | list(string) | no | [] |
-| roles | The list of IAM roles to attach the policy to | list(string) | no | [] |
-| enable_sso | Flag to enable/disable SSO resources | bool | no | false |
-| permission_set_arn | The ARN of the permission set | string | yes | - |
-| principal_arn | The ARN of the principal | string | yes | - |
+```hcl
+module "iam_policy_sso" {
+  source = "../../modules/iam_policy"
 
-## Outputs
+  name                     = "sso-managed-access"
+  description              = "Attach managed policies via SSO"
+  policy_json              = jsonencode({})
+  enable_sso               = true
+  sso_instance_arn         = "arn:aws:sso:::instance/ssoins-EXAMPLE"
+  sso_permission_set_arn   = "arn:aws:sso:::permissionSet/ssoins-EXAMPLE/ps-EXAMPLE"
+  sso_managed_policy_arns  = [
+    "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+  ]
+}
+```
 
-| Name | Description |
-|------|-------------|
-| policy_id | The unique identifier assigned by AWS for the policy |
-| policy_arn | The Amazon Resource Name (ARN) assigned by AWS to this policy |
-| policy_name | The name specified for the created IAM policy |
-| policy_path | The path of the policy in IAM |
-| sso_managed_policy_id | The ID of the SSO managed policy (if SSO is enabled) |
+---
+
+## 📥 Input Variables
+
+| Name                      | Type           | Default | Description                                                 |
+| ------------------------- | -------------- | ------- | ----------------------------------------------------------- |
+| `name`                    | `string`       | —       | Name of the IAM policy                                      |
+| `path`                    | `string`       | `"/"`   | Path for the IAM policy                                     |
+| `description`             | `string`       | `""`    | Description of the IAM policy                               |
+| `policy_json`             | `string`       | —       | JSON content of the IAM policy                              |
+| `tags`                    | `map(string)`  | `{}`    | Tags to apply to the policy                                 |
+| `attach_to_roles`         | `list(string)` | `[]`    | List of IAM role names to attach the policy to              |
+| `enable_sso`              | `bool`         | `false` | Flag to enable SSO-related resources                        |
+| `sso_instance_arn`        | `string`       | `null`  | ARN of the AWS SSO instance                                 |
+| `sso_permission_set_arn`  | `string`       | `null`  | ARN of the AWS SSO permission set                           |
+| `sso_managed_policy_arns` | `list(string)` | `[]`    | List of managed policy ARNs to attach to the permission set |
+
+---
+
+## 📤 Output Variables
+
+| Name                | Description                                           |
+| ------------------- | ----------------------------------------------------- |
+| `policy_arn`        | The ARN of the created IAM policy                     |
+| `attachment_status` | Indicates if the policy was attached to any IAM roles |
+
+---
+
+## ✅ Notes
+
+* This module is designed for role-based and SSO-first access control strategies.
+* IAM users and groups are intentionally excluded for security and scalability.
+* `enable_sso = true` must be used alongside valid SSO ARNs.
+* Supports multi-environment deployment (dev, staging, prod) when composed correctly.
+
+---
+
+## 📜 License
+
+MIT © Bluebit Information Technology Services
+
+---

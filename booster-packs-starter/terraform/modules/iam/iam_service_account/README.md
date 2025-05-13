@@ -1,61 +1,103 @@
 # IAM Service Account Module
 
-This Terraform module creates an IAM service account for use with GitHub Actions, other CI/CD systems or applications that require service accounts for access cloud resources.
+This Terraform module creates AWS IAM Roles intended to be used as **service accounts** for workloads such as EKS, Lambda, or CI/CD systems. It supports:
+- Assume Role policies
+- Inline and Managed policy attachments
+- Optional permission boundaries
 
-This Terraform module creates and manages AWS IAM roles with comprehensive security features including:
+## ✅ Features
 
+- 🔐 Secure by design (supports permission boundaries)
+- 📦 Easy to plug into brownfield or greenfield AWS accounts
+- ⚙️ Fully configurable and reusable
+- 🔁 Supports both managed and inline IAM policies
 
- - IAM role creation with configurable assume role policies
- - AWS managed policy attachments
- - AWS SSO permission set integration
- - Security monitoring via IAM Access Analyzer
- - Audit logging through CloudTrail
- - Environment-specific service control policies
- - Designed for secure and compliant access management across different environments.
+---
 
-## Usage
-
-To use this module in your Terraform configuration:
-
-```hcl
-module "iam_service_account" {
-    source = "./terraform-modules/iam/iam_service_account"
-    
-    name        = "github-actions"
-    description = "Service account for GitHub Actions"
-    
-    # Optional: Attach AWS managed policies
-    policy_arns = [
-        "arn:aws:iam::aws:policy/ReadOnlyAccess"
-    ]
-}
-```
-
-## Inputs
+## 📥 Input Variables
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| service_account_name | Name of the service account | `string` | n/a | yes |
-| assume_role_policy | JSON policy for service account assume role | `string` | n/a | yes |
-| service_account_policy_arns | List of ARNs of the IAM policies to attach to the service account role | `list(string)` | n/a | yes |
-| create_sso_permission_set | Whether to create an AWS SSO permission set for the service account | `bool` | `false` | no |
-| sso_instance_arn | ARN of the AWS SSO instance | `string` | `null` | no |
-| service_account_description | Description of the service account | `string` | `null` | no |
-| ssoadmin_permission_set_name | Name of the AWS SSO permission set | `string` | `null` | no |
-| ssoadmin_permission_set_description | Description of the AWS SSO permission set | `string` | `null` | no |
+| `name` | Name of the IAM role | `string` | `n/a` | ✅ |
+| `assume_role_policy` | IAM Assume Role policy in JSON format | `string` | `n/a` | ✅ |
+| `managed_policy_arns` | List of AWS managed or custom managed policy ARNs | `list(string)` | `[]` | ❌ |
+| `inline_policies` | Map of inline IAM policies (`{ "policy_name": "json" }`) | `map(string)` | `{}` | ❌ |
+| `permissions_boundary` | IAM permission boundary ARN | `string` | `null` | ❌ |
+| `tags` | Tags to attach to the IAM role | `map(string)` | `{}` | ❌ |
 
+---
 
-## Outputs
+## 📤 Outputs
 
 | Name | Description |
 |------|-------------|
-| service_account_arn | The ARN of the service account |
-| service_account_name | The name of the service account |
-| service_account_create_date | The creation date of the service account |
-| service_account_policy_arns | The list of ARNs of the IAM policies attached to the service account role |
-| service_account_sso_permission_set_arn | The ARN of the AWS SSO permission set for the service account |
-| service_account_sso_permission_set_name | The name of the AWS SSO permission set for the service account |
-| service_account_sso_permission_set_description | The description of the AWS SSO permission set for the service account |
-| service_account_sso_permission_set_session_duration | The session duration of the AWS SSO permission set for the service account |
-| service_account_sso_permission_set_managed_policy_arns | The list of ARNs of the managed policies attached to the AWS SSO permission set for the service account |
-| service_account_sso_permission_set_instance_arn | The ARN of the AWS SSO instance for the AWS SSO permission set for the service account |
+| `role_name` | Name of the created IAM role |
+| `role_arn` | ARN of the created IAM role |
+
+---
+
+## 🚀 Example Usage
+
+```hcl
+module "service_account" {
+  source = "./modules/iam_service_account"
+
+  name               = "ci-cd-service-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  ]
+
+  inline_policies = {
+    "CustomAccess" = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["dynamodb:GetItem"]
+          Effect   = "Allow"
+          Resource = "*"
+        }
+      ]
+    })
+  }
+
+  permissions_boundary = "arn:aws:iam::123456789012:policy/PermissionBoundary"
+  tags = {
+    Environment = "dev"
+    ManagedBy   = "terraform"
+  }
+}
+````
+
+---
+
+## 🛠️ Requirements
+
+* AWS provider >= 4.0
+* Terraform >= 1.3
+
+---
+
+## 🧱 Recommended Use Cases
+
+* **EKS IRSA Roles**
+* **CI/CD IAM Roles (GitHub Actions, GitLab)**
+* **Serverless Execution Roles**
+* **Scoped Access for SaaS Integrations**
+* **Service Mesh or Microservice Role Isolation**
+
+---
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` file for more information.
+
+---
+
+## 🤝 Support
+
+For feature requests, bug reports, or custom implementations, contact [info@bluebit.live](mailto:info@bluebit.live).
+
+
+
+

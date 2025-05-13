@@ -1,18 +1,36 @@
-# AWS IAM SSO Terraform Module
+# AWS Identity Center (SSO) Terraform Module
 
-This module sets up AWS IAM Identity Center (formerly AWS SSO) configurations including permission sets and assignments.This module provides comprehensive IAM Single Sign-On (SSO) management in AWS
+This Terraform module provides a **production-ready, plug-and-play solution** for configuring AWS Identity Center (formerly AWS SSO) with external identity providers (IdPs) such as Google Workspace, Azure AD, Okta, or OneLogin. Designed with flexibility and modularity in mind, this module can be integrated into both greenfield and brownfield infrastructure environments.
 
- It creates and manages:
+## 🚀 Features
 
- - Permission sets with customizable session durations
- - Managed policy attachments for permission sets
- - Account assignments for SSO users
- - Access analysis through IAM Access Analyzer
- - Audit logging via CloudTrail
- - Environment-specific service control policies
- 
- The module supports multiple environments (prod, staging, dev) with appropriate security restrictions and monitoring capabilities.
+- ✅ **Vendor-Agnostic** — Supports all major IdPs with SCIM or manual provisioning
+- 🔐 **Secure by Default** — Enforces least-privilege access policies via Terraform
+- 🔁 **Multi-Account Ready** — Assign permissions across multiple AWS accounts
+- 🧩 **Modular Design** — Easily integrates with existing Terraform infrastructure
+- 📦 **No Vendor Lock-In** — Fully managed internally; avoids third-party SAR apps like SSOSync
+- 🛡️ **Production Grade** — Built to scale securely with AWS best practices
 
+---
+
+## 📦 Module Structure
+
+```text
+modules/
+    ├── iam/
+         ├──sso-identity-center/
+                ├── main.tf
+                ├── variables.tf
+                ├── outputs.tf
+                ├── permission_sets.tf
+                ├── account_assignments.tf
+                ├── lambda_sync/        # Optional: Self-managed SCIM sync workaround
+examples/
+  sso-google-workspace/
+  sso-azuread/
+  sso-okta/
+
+```
 
 ## Usage
 

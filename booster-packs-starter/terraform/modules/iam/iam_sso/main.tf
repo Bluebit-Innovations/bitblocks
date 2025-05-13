@@ -6,47 +6,6 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 
-# # Example: IAM SSO Module (iam_sso/main.tf)
-# resource "aws_ssoadmin_group" "this" {
-#   name = var.sso_group_name
-# }
-
-# Permission Sets
-resource "aws_ssoadmin_permission_set" "this" {
-    for_each = var.permission_sets
-
-    name             = each.key
-    description      = each.value.description
-    instance_arn     = tolist(data.aws_ssoadmin_instances.this.arns)[0]
-    session_duration = each.value.session_duration
-}
-
-# Attach managed policies to permission sets
-resource "aws_ssoadmin_managed_policy_attachment" "this" {
-    for_each = {
-        for policy in local.flattened_policies : "${policy.name}-${policy.policy_arn}" => policy
-    }
-
-    instance_arn       = tolist(data.aws_ssoadmin_instances.this.arns)[0]
-    permission_set_arn = aws_ssoadmin_permission_set.this[each.value.name].arn
-    managed_policy_arn = each.value.policy_arn
-}
-
-# Account assignments
-resource "aws_ssoadmin_account_assignment" "this" {
-    for_each = var.account_assignments
-
-    instance_arn       = tolist(data.aws_ssoadmin_instances.this.arns)[0]
-    permission_set_arn = each.value.permission_set_arn
-    principal_id       = each.value.principal_id
-    principal_type     = each.value.principal_type
-    target_id          = each.value.account_id
-    target_type        = "AWS_ACCOUNT"
-}
-
-# Data source for SSO instance
-data "aws_ssoadmin_instances" "this" {}
-
 
 # Logging and Auditing resources
 
