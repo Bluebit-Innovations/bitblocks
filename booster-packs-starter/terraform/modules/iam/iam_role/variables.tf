@@ -1,60 +1,70 @@
-
-variable "role_name" {
-    type        = string
-    description = "Name of the IAM role"
+variable "name" {
+  description = "Name of the IAM Role"
+  type        = string
 }
 
-variable "assume_role_policy" {
-    type        = string
-    description = "JSON encoded assume role policy"
-}
-
-variable "policy_arns" {
-    type        = list(string)
-    description = "List of policy ARNs to attach to the role"
-    default     = []
-}
-
-
-
-
-# Add a variable to control Access Analyzer resources creation
-variable "enable_access_analyzer" {
-    description = "Flag to enable/disable IAM Access Analyzer"
-    type        = bool
-    default     = false
-}
-
-variable "enable_cloudtrail" {
-    description = "Flag to enable/disable CloudTrail monitoring"
-    type        = bool
-    default     = false
-}
-
-variable "cloudtrail_bucket_name" {
-    description = "Name of the S3 bucket for CloudTrail logs"
-    type        = string
-}
-
-variable "enable_scp" {
-    description = "Flag to enable/disable Service Control Policies"
-    type        = bool
-    default     = false
-}
-
-variable "environment" {
-    description = "Environment name (prod, staging, dev)"
-    type        = string
+variable "path" {
+  description = "Path for the IAM role"
+  type        = string
+  default     = "/"
 }
 
 variable "tags" {
-    description = "A map of tags to assign to the resources"
-    type        = map(string)
-    default     = {}
+  description = "Tags to apply"
+  type        = map(string)
+  default     = {}
 }
 
-variable "group_name" {
-    description = "Name of the IAM group"
-    type        = string
+variable "max_session_duration" {
+  description = "Max session duration in seconds"
+  type        = number
+  default     = 3600
 }
 
+variable "permissions_boundary" {
+  description = "ARN of the permissions boundary policy"
+  type        = string
+  default     = null
+}
+
+variable "managed_policy_arns" {
+  description = "List of managed policy ARNs to attach"
+  type        = list(string)
+  default     = []
+}
+
+variable "inline_policies" {
+  description = "List of inline policies (name + JSON)"
+  type = list(object({
+    name   = string
+    policy = string
+  }))
+  default = []
+}
+
+variable "create_instance_profile" {
+  description = "Whether to create an instance profile"
+  type        = bool
+  default     = false
+}
+
+variable "assume_role_principal_type" {
+  description = "Type of principal to assume the role (e.g., Service, AWS, Federated)"
+  type        = string
+  default     = "Service"
+}
+
+variable "assume_role_principal_identifiers" {
+  description = "List of principal ARNs or identifiers allowed to assume the role"
+  type        = list(string)
+}
+
+variable "assume_role_conditions" {
+  description = "Optional list of condition blocks for the assume role policy"
+  type = list(object({
+    test     = string
+    variable = string
+    values   = list(string)
+  }))
+  default = []
+}
