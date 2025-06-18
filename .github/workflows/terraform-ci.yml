@@ -1,0 +1,57 @@
+name: Terraform CI
+
+on:
+  push:
+    branches:
+      - main
+      - ore/terraform-gh-action
+
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write # for code annotations
+
+jobs:
+  terraform:
+    name: Terraform Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: 🔍 Format check (terraform fmt)
+        run: terraform fmt -check -recursive
+
+      - name: 🧪 Init
+        run: terraform init -backend=false
+
+      - name: ✅ Validate
+        run: terraform validate
+
+      - name: 🔍 Lint with TFLint
+        uses: reviewdog/action-tflint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          fail_on_error: true
+
+      - name: 🛡️ tfsec - Static Security Analysis
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.4.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          working_directory: ./terraform
+          soft_fail: false
+
+      - name: 📊 Terraform Plan
+        run: terraform plan -no-color
