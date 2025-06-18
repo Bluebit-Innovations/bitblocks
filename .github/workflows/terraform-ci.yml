@@ -16,10 +16,14 @@ jobs:
   terraform:
     name: Terraform Checks
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example-dir: ${{ toJson(needs.list-examples.outputs.example_dirs) }}
+    needs: list-examples
     defaults:
       run:
         shell: bash
-        working-directory: ./terraform
+        working-directory: ${{ matrix.example-dir }}
 
     steps:
       - name: 📥 Checkout code
@@ -47,11 +51,26 @@ jobs:
           fail_on_error: true
 
       - name: 🛡️ tfsec - Static Security Analysis
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.4.0
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          working_directory: ./terraform
+          working_directory: ${{ matrix.example-dir }}
           soft_fail: false
 
       - name: 📊 Terraform Plan
         run: terraform plan -no-color
+
+  list-examples:
+    name: List Example Directories
+    runs-on: ubuntu-latest
+    outputs:
+      example_dirs: ${{ steps.set-output.outputs.example_dirs }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Find example directories
+        id: set-output
+        run: |
+          example_dirs=$(find .bit-blocks-starter/terraform/modules/*/examples/* -type d | jq -R -s -c 'split("\n")[:-1]')
+          echo "::set-output name=example_dirs::$example_dirs"
