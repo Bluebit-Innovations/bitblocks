@@ -1,0 +1,107 @@
+# This file is used to define the groups and their permissions in AWS Identity Center.
+# The groups are defined with their names, descriptions, IDs, permission sets, and account IDs.
+# The IDs are optional and can be left empty if you want to create the group via Terraform.
+
+
+groups:
+
+  - name: cloud-phoenix-admin
+    description: "Cloud Phoenix Admins"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/AdminAccess"
+    account_ids:
+      - "688567262888"
+  - name: cloud-phoenix-devops
+    description: "DevOps Team responsible for infrastructure, deployment,observability and apps"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/AdminAccess"
+    account_ids:
+      - "688567262888"
+
+  - name: cloud-phoenix-developers
+    description: "Development Team responsible for app development and design"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/DeveloperAccess"
+    account_ids:
+      - "688567262888"
+
+  - name: cloud-phoenix-infra
+    description: "Infrastructure Team responsible for infrastructure, Operations of apps"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/PowerUserAccess"
+    account_ids:
+      - "688567262888"
+
+  - name: cloud-phoenix-security-auditors
+    description: "Security Audit Team responsible for security and audit"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/SecurityAudit"
+    account_ids:
+      - "688567262888"
+
+  - name: cloud-phoenix-billing-auditors  
+    description: "Billing Audit Team responsible for billing and audit"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/Billing"
+    account_ids:
+      - "688567262888"
+
+
+  - name: cloud-phoenix-governance-admin 
+    description: "Billing Audit Team responsible for billing and audit"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/AWSOrganizationsFullAccess"
+    account_ids:
+      - "688567262888"  
+
+# The following groups are for the Bluebit project. 
+# They are similar to the Cloud Phoenix groups but with different names and descriptions.
+
+  - name: bluebit-admin
+    description: "Bluebit Admins"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/AdminAccess"
+    account_ids:
+      - "688567262888"
+  - name: bluebit-devops
+    description: "DevOps Team responsible for infrastructure, deployment, observability and apps"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/AdminAccess"
+    account_ids:
+      - "688567262888"
+
+  - name: bluebit-developers
+    description: "Development Team responsible for app development and design"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/DeveloperAccess"
+    account_ids:
+      - "688567262888"
+
+  - name: bluebit-infra
+    description: "Infrastructure Team responsible for infrastructure, Operations of apps"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/PowerUserAccess"
+    account_ids:
+      - "688567262888"
+
+  - name: bluebit-security-auditors
+    description: "Security Audit Team responsible for security and audit"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/SecurityAudit"
+    account_ids:
+      - "688567262888"
+
+  - name: bluebit-billing-auditors  
+    description: "Billing Audit Team responsible for billing and audit"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/Billing"
+    account_ids:
+      - "688567262888"
+
+
+  - name: bluebit-governance-admin 
+    description: "Billing Audit Team responsible for billing and audit"
+    id: ""  # Leave empty if you want to create the group via Terraform
+    permission_set: "arn:aws:iam::aws:policy/AWSOrganizationsFullAccess"
+    account_ids:
+      - "688567262888"
