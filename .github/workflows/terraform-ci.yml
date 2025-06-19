@@ -10,20 +10,36 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write # for code annotations
+  pull-requests: write
 
 jobs:
+  list-examples:
+    name: List Example Directories
+    runs-on: ubuntu-latest
+    outputs:
+      example_matrix: ${{ steps.set-output.outputs.example_matrix }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Find example directories and build matrix
+        id: set-output
+        run: |
+          mapfile -t paths < <(find ./bit-blocks-starter/terraform/modules/*/examples/* -maxdepth 0 -type d)
+          example_matrix=$(printf '%s\n' "${paths[@]}" | jq -R -s -c 'split("\n")[:-1] | map({ name: (split("/")[-1]), path: . })')
+          echo "::set-output name=example_matrix::$example_matrix"
+
   terraform:
-    name: example-${{ matrix.example-dir.split('/')[-2] }}
+    name: example-${{ matrix.name }}
+    needs: list-examples
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        example-dir: ${{ fromJson(needs.list-examples.outputs.example_dirs) }}
-    needs: list-examples
+        include: ${{ fromJson(needs.list-examples.outputs.example_matrix) }}
     defaults:
       run:
         shell: bash
-        working-directory: ${{ matrix.example-dir }}
+        working-directory: ${{ matrix.path }}
 
     steps:
       - name: 📥 Checkout code
@@ -54,24 +70,23 @@ jobs:
         uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          working_directory: ${{ matrix.example-dir }}
+          working_directory: ${{ matrix.path }}
           soft_fail: false
 
       - name: 📊 Terraform Plan
-        run: terraform plan -no-color
-        working-directory: ${{ matrix.example-dir }}
+        run: |  
+          terraform plan -no-color > plan.txt
+          cat plan.txt
 
-  list-examples:
-    name: List Example Directories
-    runs-on: ubuntu-latest
-    outputs:
-      example_dirs: ${{ steps.set-output.outputs.example_dirs }}
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
+      - name: 🗂️ Upload Plan as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ matrix.name }}
+          path: ${{ matrix.path }}/plan.txt
 
-      - name: 🔍 Find example directories
-        id: set-output
-        run: |
-          example_dirs=$(find ./bit-blocks-starter/terraform/modules/*/examples/* -type d | jq -R -s -c 'split("\n")[:-1]')
-          echo "::set-output name=example_dirs::$example_dirs"
+      - name: 💬 Comment Terraform Plan on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: ${{ matrix.path }}/plan.txt
