@@ -1,0 +1,103 @@
+name: Terraform CI
+
+on:
+  push:
+    branches:
+      - main
+      - ore/terraform-gh-action
+
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  list-examples:
+    name: List Example Directories
+    runs-on: ubuntu-latest
+    outputs:
+      example_matrix: ${{ steps.set-output.outputs.example_matrix }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Find example directories and build matrix
+        id: set-output
+        run: |
+          mapfile -t paths < <(find ./bit-blocks-starter/terraform/modules/*/examples/* -maxdepth 0 -type d)
+          example_matrix=$(printf '%s\n' "${paths[@]}" | jq -R -s -c 'split("\n")[:-1] | map({ name: (split("/")[-1]), path: . })')
+          echo "::set-output name=example_matrix::$example_matrix"
+
+  terraform:
+    name: example-${{ matrix.name }}
+    needs: list-examples
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.list-examples.outputs.example_matrix) }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ matrix.path }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: 🔍 Format check and fix (terraform fmt)
+        run: terraform fmt -recursive
+
+      - name: 🧪 Init
+        run: terraform init -backend=false
+
+      - name: ✅ Validate
+        run: terraform validate
+
+      - name: 🔍 Lint with TFLint
+        uses: reviewdog/action-tflint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          fail_on_error: true
+
+      - name: 🛡️ tfsec - Static Security Analysis
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          working_directory: ${{ matrix.path }}
+          soft_fail: false
+
+      - name: 📊 Terraform Plan
+        id: tfplan
+        run: |
+          terraform plan -no-color > raw_plan.txt
+
+          echo '## 🧾 Terraform Plan for `${{ matrix.name }}`' > formatted_plan.txt
+          echo '' >> formatted_plan.txt
+          echo '> ⚠️ Review this carefully before applying changes' >> formatted_plan.txt
+          echo '' >> formatted_plan.txt
+          echo '```hcl' >> formatted_plan.txt
+          cat raw_plan.txt >> formatted_plan.txt
+          echo '```' >> formatted_plan.txt
+
+      - name: 🗂️ Upload Plan as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ matrix.name }}
+          path: |
+            ${{ matrix.path }}/raw_plan.txt
+            ${{ matrix.path }}/formatted_plan.txt
+
+      - name: 💬 Post Plan as PR Comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: ${{ matrix.path }}/formatted_plan.txt
+
