@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   terraform:
-    name: ${{ 'example-' }}${{ matrix.example-dir }}
+    name: ${{ 'example-' + matrix.example-dir.split('/')[-2] }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -59,6 +59,7 @@ jobs:
 
       - name: 📊 Terraform Plan
         run: terraform plan -no-color
+        working-directory: ${{ matrix.example-dir }}
 
   list-examples:
     name: List Example Directories
