@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   terraform:
-    name: ${{ 'example-' + matrix.example-dir }}
+    name: ${{ 'example-' }}${{ matrix.example-dir }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
