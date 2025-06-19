@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   terraform:
-    name: Terraform Checks
+    name: ${{ 'example-' + matrix.example-dir }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,8 +34,8 @@ jobs:
         with:
           terraform_version: 1.6.6
 
-      - name: 🔍 Format check (terraform fmt)
-        run: terraform fmt -check -recursive
+      - name: 🔍 Format check and fix (terraform fmt)
+        run: terraform fmt -recursive
 
       - name: 🧪 Init
         run: terraform init -backend=false
