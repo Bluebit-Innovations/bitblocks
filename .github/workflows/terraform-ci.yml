@@ -72,5 +72,5 @@ jobs:
       - name: 🔍 Find example directories
         id: set-output
         run: |
-          example_dirs=$(find .bit-blocks-starter/terraform/modules/*/examples/* -type d | jq -R -s -c 'split("\n")[:-1]')
+          example_dirs=$(find ./bit-blocks-starter/terraform/modules/*/examples/* -type d | jq -R -s -c 'split("\n")[:-1]')
           echo "::set-output name=example_dirs::$example_dirs"
