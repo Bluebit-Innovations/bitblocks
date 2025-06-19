@@ -74,19 +74,30 @@ jobs:
           soft_fail: false
 
       - name: 📊 Terraform Plan
-        run: |  
-          terraform plan -no-color > plan.txt
-          cat plan.txt
+        id: tfplan
+        run: |
+          terraform plan -no-color > raw_plan.txt
+
+          echo '## 🧾 Terraform Plan for `${{ matrix.name }}`' > formatted_plan.txt
+          echo '' >> formatted_plan.txt
+          echo '> ⚠️ Review this carefully before applying changes' >> formatted_plan.txt
+          echo '' >> formatted_plan.txt
+          echo '```hcl' >> formatted_plan.txt
+          cat raw_plan.txt >> formatted_plan.txt
+          echo '```' >> formatted_plan.txt
 
       - name: 🗂️ Upload Plan as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan-${{ matrix.name }}
-          path: ${{ matrix.path }}/plan.txt
+          path: |
+            ${{ matrix.path }}/raw_plan.txt
+            ${{ matrix.path }}/formatted_plan.txt
 
-      - name: 💬 Comment Terraform Plan on PR
+      - name: 💬 Post Plan as PR Comment
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true
-          path: ${{ matrix.path }}/plan.txt
+          path: ${{ matrix.path }}/formatted_plan.txt
+
