@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   terraform:
-    name: ${{ format('example-{0}', matrix.example-dir.split('/')[-2]) }}
+    name: example-${{ matrix.example-dir.split('/')[-2] }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
