@@ -1,0 +1,21 @@
+stages:
+  - build
+  - push
+
+variables:
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+build_image:
+  stage: build
+  script:
+    - docker build -t $IMAGE_TAG .
+  only:
+    - main
+
+push_image:
+  stage: push
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker push $IMAGE_TAG
+  only:
+    - main

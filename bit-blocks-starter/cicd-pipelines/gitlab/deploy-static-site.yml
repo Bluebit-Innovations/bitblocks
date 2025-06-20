@@ -1,0 +1,12 @@
+stages:
+  - deploy
+
+deploy_node_app:
+  stage: deploy
+  script:
+    - apk add --no-cache openssh # for alpine runners
+    - ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "cd /var/www/app && git pull && npm ci && pm2 restart all"
+  only:
+    - main
+  environment:
+    name: production
