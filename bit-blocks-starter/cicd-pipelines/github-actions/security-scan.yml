@@ -1,0 +1,38 @@
+name: 🔐 Security Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # every Monday
+  push:
+    branches:
+      - main
+
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    name: 📦 NPM Audit
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: 🔍 Run npm audit
+      run: npm audit --audit-level=moderate
+
+  docker-scan:
+    runs-on: ubuntu-latest
+    name: 🐳 Docker Scan
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: 🐳 Install Trivy
+      run: |
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+    - name: 🔍 Scan Docker image
+      run: |
+        docker build -t myapp:latest .
+        trivy image myapp:latest

@@ -1,0 +1,30 @@
+name: 🏷️ PR Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🏷️ Label PR by path
+      uses: actions/labeler@v5
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+# Optional: Define your patterns in a .github/labeler.yml config file
+
+# Example .github/labeler.yml:
+# frontend:
+#   - 'src/frontend/**'
+# backend:
+#   - 'src/backend/**'
+# infra:
+#   - 'infra/**'
+# docs:
+#   - '**/*.md'

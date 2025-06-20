@@ -1,4 +1,4 @@
-name: Deploy Node App
+name: 🚀 Deploy Node.js App to EC2
 
 on:
   push:
@@ -8,15 +8,31 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    - name: Set up Node.js
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: "16"
-    - name: Install dependencies
-      run: npm install
-    - name: Deploy to EC2
-      run: |
-        echo "Deploying app..."
+        node-version: '18'
+
+    - name: 📦 Install dependencies
+      run: npm ci
+
+    - name: 🧪 Run tests
+      run: npm test
+
+    - name: 🚚 Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_PUBLIC_IP }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        script: |
+          cd /var/www/my-node-app
+          git pull origin main
+          npm install
+          pm2 reload ecosystem.config.js --env production
