@@ -22,10 +22,12 @@ jobs:
           curl -sSL https://github.com/rhysd/actionlint/releases/latest/download/actionlint_linux_amd64.tar.gz | tar xz
           sudo mv actionlint /usr/local/bin/
 
-      - name: ✅ Run actionlint on GitHub workflows
+      - name: 🛠 Install actionlint
         run: |
-          find bit-blocks/bit-blocks-starter/cicd-pipelines/github-actions -name "*.yml" -print0 | xargs -0 -n1 actionlint
-
+          curl -sSL https://github.com/rhysd/actionlint/releases/latest/download/actionlint-linux-x86_64 -o actionlint
+          chmod +x actionlint
+          sudo mv actionlint /usr/local/bin/
+          
   validate-gitlab-ci:
     name: Validate GitLab CI/CD YAMLs
     runs-on: ubuntu-latest
@@ -37,7 +39,7 @@ jobs:
 
       - name: ✅ Validate .gitlab-ci.yml files via GitLab API
         run: |
-          for file in $(find bit-blocks/bit-blocks-starter/cicd-pipelines/gitlab -name "*.yml"); do
+          for file in $(find bit-blocks-starter/cicd-pipelines/gitlab -name "*.yml"); do
             echo "Validating $file"
             CONTENT=$(cat $file | sed 's/"/\\"/g' | awk '{printf "%s\\n", $0}')
             PAYLOAD="{\"content\":\"$CONTENT\"}"
