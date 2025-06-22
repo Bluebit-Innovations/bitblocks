@@ -19,15 +19,10 @@ jobs:
 
       - name: 🛠 Install actionlint
         run: |
-          curl -sSL https://github.com/rhysd/actionlint/releases/latest/download/actionlint_linux_amd64.tar.gz | tar xz
-          sudo mv actionlint /usr/local/bin/
-
-      - name: 🛠 Install actionlint
-        run: |
           curl -sSL https://github.com/rhysd/actionlint/releases/latest/download/actionlint-linux-x86_64 -o actionlint
           chmod +x actionlint
           sudo mv actionlint /usr/local/bin/
-          
+
   validate-gitlab-ci:
     name: Validate GitLab CI/CD YAMLs
     runs-on: ubuntu-latest
