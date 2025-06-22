@@ -5,9 +5,8 @@ on:
     branches:
       - main
       - ore/terraform-gh-action
-
-    paths:
-      - "bit-blocks-starter/cicd-pipelines/**"
+    # paths:
+    #   - "bit-blocks-starter/cicd-pipelines/**"
   pull_request:
 
 jobs:
