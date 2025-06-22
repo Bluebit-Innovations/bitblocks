@@ -1,0 +1,14 @@
+stages:
+  - codeql
+
+codeql_scan:
+  image: ghcr.io/github/codeql-cli/codeql-cli-linux64
+  stage: codeql
+  script:
+    - codeql database create codeql-db --language=javascript --source-root=.
+    - codeql database analyze codeql-db --format=sarifv2.1.0 --output=codeql-report.sarif
+  artifacts:
+    paths:
+      - codeql-report.sarif
+  only:
+    - main

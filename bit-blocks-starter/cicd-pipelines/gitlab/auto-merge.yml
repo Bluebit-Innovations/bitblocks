@@ -1,0 +1,16 @@
+stages:
+  - auto-merge
+
+auto_merge:
+  stage: auto-merge
+  script:
+    - |
+      curl --request PUT \
+        --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/merge" \
+        --form "merge_when_pipeline_succeeds=true" \
+        --form "should_remove_source_branch=true"
+  only:
+    - merge_requests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
