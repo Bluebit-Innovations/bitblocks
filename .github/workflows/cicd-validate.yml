@@ -7,7 +7,7 @@ on:
       - ore/terraform-gh-action
     # paths:
     #   - "bit-blocks-starter/cicd-pipelines/**"
-  pull_request:
+  # pull_request:
 
 jobs:
   validate-github-actions:
@@ -19,14 +19,16 @@ jobs:
       
       - name: 🎨 Install actionlint
         run: |
-          curl -sSL https://github.com/rhysd/actionlint/releases/latest/download/actionlint-linux-x86_64 -o actionlint
+          echo "🔽 Downloading actionlint binary..."
+          curl -sSL -o actionlint https://github.com/rhysd/actionlint/releases/latest/download/actionlint-linux-x86_64
+          file actionlint
           chmod +x actionlint
           sudo mv actionlint /usr/local/bin/
 
-      - name: 🔍 Run actionlint with color output
+      - name: 🔍 Run actionlint with color
         run: |
           echo "🔍 Scanning GitHub Actions templates..."
-          find bit-blocks-starter/cicd-pipelines/github-actions -type f -name "*.yml" | while read -r file; do
+          find bit-blocks/bit-blocks-starter/cicd-pipelines/github-actions -type f -name "*.yml" | while read -r file; do
             echo -e "\033[1;36m🔎 Checking:\033[0m $file"
             actionlint -color always -file "$file"
           done
@@ -44,7 +46,7 @@ jobs:
       - name: 🔎 Validate GitLab YAMLs via API
         run: |
           echo "🔍 Validating GitLab CI/CD templates..."
-          find bit-blocks/bit-blocks-starter/cicd-pipelines/gitlab -type f -name "*.yml" | while read -r file; do
+          find bit-blocks-starter/cicd-pipelines/gitlab -type f -name "*.yml" | while read -r file; do
             echo -e "\033[1;36m🔍 Linting:\033[0m $file"
 
             # Format the raw content correctly for JSON POST
