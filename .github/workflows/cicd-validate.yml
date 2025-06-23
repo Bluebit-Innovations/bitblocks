@@ -17,19 +17,23 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
       
-      - name: 🎨 Run actionlint with colors and annotations
-        uses: reviewdog/action-actionlint@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-check    # Shows annotations in the "Checks" tab
-          level: warning
-          actionlint_flags: >-
-            -color always
-            $(find bit-blocks-starter/cicd-pipelines/github-actions -type f -name "*.yml" -exec printf -- "-file %s\n" {} \;)
+      - name: 🎨 Install actionlint
+        run: |
+          curl -sSL https://github.com/rhysd/actionlint/releases/latest/download/actionlint-linux-x86_64 -o actionlint
+          chmod +x actionlint
+          sudo mv actionlint /usr/local/bin/
+
+      - name: 🔍 Run actionlint with color output
+        run: |
+          echo "🔍 Scanning GitHub Actions templates..."
+          find bit-blocks-starter/cicd-pipelines/github-actions -type f -name "*.yml" | while read -r file; do
+            echo -e "\033[1;36m🔎 Checking:\033[0m $file"
+            actionlint -color always -file "$file"
+          done
 
 
   validate-gitlab-ci:
-    name: Validate GitLab CI/CD YAMLs
+    name: ✅ Validate GitLab CI Templates
     runs-on: ubuntu-latest
     env:
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
@@ -37,13 +41,15 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔎 Validate GitLab YAML files using GitLab CI Lint API
+      - name: 🔎 Validate GitLab YAMLs via API
         run: |
-          echo "🔎 Validating GitLab CI/CD templates..."
-          find bit-blocks-starter/cicd-pipelines/gitlab -name "*.yml" | while read -r file; do
-            echo -e "\033[1;34m🔍 Validating:\033[0m $file"
-            CONTENT=$(sed 's/"/\\"/g' "$file" | awk '{printf "%s\\n", $0}')
-            PAYLOAD="{\"content\":\"$CONTENT\"}"
+          echo "🔍 Validating GitLab CI/CD templates..."
+          find bit-blocks/bit-blocks-starter/cicd-pipelines/gitlab -type f -name "*.yml" | while read -r file; do
+            echo -e "\033[1;36m🔍 Linting:\033[0m $file"
+
+            # Format the raw content correctly for JSON POST
+            CONTENT=$(jq -Rs '.' < "$file")
+            PAYLOAD="{\"content\": $CONTENT}"
 
             RESPONSE=$(curl --fail --silent --show-error \
               --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
@@ -51,7 +57,8 @@ jobs:
               --data "$PAYLOAD" \
               https://gitlab.com/api/v4/ci/lint)
 
-            if echo "$RESPONSE" | jq -e '.status == "valid"' > /dev/null; then
+            STATUS=$(echo "$RESPONSE" | jq -r '.status')
+            if [ "$STATUS" = "valid" ]; then
               echo -e "\033[1;32m✅ VALID\033[0m"
             else
               echo -e "\033[1;31m❌ INVALID\033[0m"
