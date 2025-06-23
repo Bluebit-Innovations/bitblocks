@@ -25,7 +25,7 @@ jobs:
           level: warning
           actionlint_flags: >-
             -color always
-            $(find bit-blocks/bit-blocks-starter/cicd-pipelines/github-actions -type f -name "*.yml" -exec printf -- "-file %s\n" {} \;)
+            $(find bit-blocks-starter/cicd-pipelines/github-actions -type f -name "*.yml" -exec printf -- "-file %s\n" {} \;)
 
 
   validate-gitlab-ci:
@@ -40,7 +40,7 @@ jobs:
       - name: 🔎 Validate GitLab YAML files using GitLab CI Lint API
         run: |
           echo "🔎 Validating GitLab CI/CD templates..."
-          find bit-blocks/bit-blocks-starter/cicd-pipelines/gitlab -name "*.yml" | while read -r file; do
+          find bit-blocks-starter/cicd-pipelines/gitlab -name "*.yml" | while read -r file; do
             echo -e "\033[1;34m🔍 Validating:\033[0m $file"
             CONTENT=$(sed 's/"/\\"/g' "$file" | awk '{printf "%s\\n", $0}')
             PAYLOAD="{\"content\":\"$CONTENT\"}"
