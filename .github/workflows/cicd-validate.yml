@@ -67,12 +67,14 @@ jobs:
       - name: 🧪 Check glab authentication
         run: glab auth status
 
-      - name: 🔍 Lint GitLab CI templates
+      - name: 🧪 Lint GitLab CI templates (no Git remote required)
         run: |
-          echo "🔍 Linting GitLab pipeline templates..."
+          echo "🔍 Linting GitLab pipeline templates via stdin..."
           find bit-blocks-starter/cicd-pipelines/gitlab -type f -name "*.yml" | while read -r file; do
             echo -e "\033[1;36m🔎 Linting:\033[0m $file"
-            cp "$file" .gitlab-ci.yml
-            glab ci lint || echo "❌ $file failed lint"
-            rm .gitlab-ci.yml
+            if glab ci lint --stdin < "$file"; then
+              echo -e "\033[1;32m✔ Passed:\033[0m $file"
+            else
+              echo -e "\033[1;31m❌ Failed:\033[0m $file"
+            fi
           done
