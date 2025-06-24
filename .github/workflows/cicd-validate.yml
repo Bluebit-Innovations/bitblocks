@@ -20,8 +20,10 @@ jobs:
       - name: 🎨 Install actionlint
         run: |
           echo "🔽 Downloading actionlint binary..."
+          uname -m
           VERSION=$(curl -s https://api.github.com/repos/rhysd/actionlint/releases/latest | jq -r '.tag_name')
-          curl -sSL -o actionlint "https://github.com/rhysd/actionlint/releases/download/${VERSION}/actionlint_1.7.7_linux_amd64.tar.gz"
+          curl -sSL -o actionlint "https://github.com/rhysd/actionlint/releases/download/${VERSION}/actionlint_1.7.7_linux_arm64.tar.gz" 
+
           file actionlint
           chmod +x actionlint
           sudo mv actionlint /usr/local/bin/
