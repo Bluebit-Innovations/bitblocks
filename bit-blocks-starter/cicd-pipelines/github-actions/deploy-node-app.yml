@@ -32,6 +32,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
+          set -euo pipefail
           cd /var/www/my-node-app
           git pull origin main
           npm install
