@@ -22,10 +22,13 @@ jobs:
           echo "🔽 Downloading actionlint binary..."
           uname -m
           VERSION=$(curl -s https://api.github.com/repos/rhysd/actionlint/releases/latest | jq -r '.tag_name')
-          curl -sSL -o actionlint "https://github.com/rhysd/actionlint/releases/download/${VERSION}/actionlint_1.7.7_linux_amd64.tar.gz" 
-          file actionlint
+          echo "⬇️ Downloading actionlint version $VERSION..."
+
+          curl -sSL -o actionlint.tar.gz "https://github.com/rhysd/actionlint/releases/download/${VERSION}/actionlint_${VERSION#v}_linux_amd64.tar.gz"
+          tar -xzf actionlint.tar.gz
           chmod +x actionlint
           sudo mv actionlint /usr/local/bin/
+          actionlint --version
 
 
       - name: 🔍 Run actionlint with color
