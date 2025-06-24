@@ -64,6 +64,9 @@ jobs:
               token: $GITLAB_TOKEN
           EOF
 
+      - name: 🧪 Check glab authentication
+        run: glab auth status
+
       - name: 🔍 Lint GitLab CI templates
         run: |
           echo "🔍 Linting GitLab pipeline templates..."
