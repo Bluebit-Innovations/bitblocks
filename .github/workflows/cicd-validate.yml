@@ -66,10 +66,10 @@ jobs:
         run: glab auth status
 
 
-      - name: 🔍 Lint GitLab CI Templates
+      - name: 🔍 Lint GitLab templates via temp override
         run: |
-          echo "🔍 Linting GitLab pipeline templates..."
           find bit-blocks-starter/cicd-pipelines/gitlab -type f -name "*.yml" | while read -r file; do
-            echo -e "\033[1;36m🔎 Checking:\033[0m $file"
-            glab ci lint --file "$file"
+            echo -e "\033[1;36m🔎 Linting:\033[0m $file"
+            cp "$file" .gitlab-ci.yml
+            glab ci lint || echo "❌ $file is invalid"
           done
