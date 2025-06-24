@@ -58,13 +58,19 @@ jobs:
             # Format the raw content correctly for JSON POST
             CONTENT=$(jq -Rs '.' < "$file")
             PAYLOAD="{\"content\": $CONTENT}"
-
+            
+            #echo "🔬 Payload for GitLab CI Lint API:"
+            echo "🔬 Payload preview:"
+            echo "{\"content\": $CONTENT}" | jq .
+            
+            # Call GitLab CI Lint API
             RESPONSE=$(curl --fail --silent --show-error \
               --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
               --header "Content-Type: application/json" \
               --data "$PAYLOAD" \
               https://gitlab.com/api/v4/ci/lint)
 
+            # Check if the response contains an error
             STATUS=$(echo "$RESPONSE" | jq -r '.status')
             if [ "$STATUS" = "valid" ]; then
               echo -e "\033[1;32m✅ VALID\033[0m"
