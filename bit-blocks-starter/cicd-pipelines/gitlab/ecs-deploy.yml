@@ -1,0 +1,10 @@
+stages:
+  - deploy
+
+deploy_ecs:
+  stage: deploy
+  image: amazon/aws-cli
+  script:
+    - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment
+  only:
+    - main

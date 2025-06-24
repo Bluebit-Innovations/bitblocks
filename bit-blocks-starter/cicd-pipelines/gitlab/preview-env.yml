@@ -1,0 +1,13 @@
+stages:
+  - deploy
+
+deploy_preview:
+  stage: deploy
+  script:
+    - npm run build
+    - vercel --token=$VERCEL_TOKEN --prod=false --yes
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://$CI_COMMIT_REF_SLUG.your-preview-host.com
+  only:
+    - merge_requests

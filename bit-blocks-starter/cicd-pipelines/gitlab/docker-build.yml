@@ -1,0 +1,12 @@
+stages:
+  - deploy
+
+deploy_static_site:
+  stage: deploy
+  image: amazon/aws-cli
+  script:
+    - aws s3 sync ./dist s3://$S3_BUCKET_NAME --delete
+  only:
+    - main
+  environment:
+    name: production

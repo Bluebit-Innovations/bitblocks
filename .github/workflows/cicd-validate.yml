@@ -1,0 +1,75 @@
+name: Validate GitHub and GitLab CI/CD Templates
+
+on:
+  push:
+    branches:
+      - main
+      - ore/terraform-gh-action
+    # paths:
+    #   - "bit-blocks-starter/cicd-pipelines/**"
+  # pull_request:
+
+jobs:
+  validate-github-actions:
+    name: Validate GitHub Actions (actionlint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🎨 Install actionlint
+        run: |
+          echo "🔽 Downloading actionlint binary..."
+          uname -m
+          VERSION=$(curl -s https://api.github.com/repos/rhysd/actionlint/releases/latest | jq -r '.tag_name')
+          echo "⬇️ Downloading actionlint version $VERSION..."
+
+          curl -sSL -o actionlint.tar.gz "https://github.com/rhysd/actionlint/releases/download/${VERSION}/actionlint_${VERSION#v}_linux_amd64.tar.gz"
+          tar -xzf actionlint.tar.gz
+          chmod +x actionlint
+          sudo mv actionlint /usr/local/bin/
+          actionlint --version
+
+
+      - name: 🔍 Run actionlint with color
+        run: |
+          echo "🔍 Scanning GitHub Actions templates..."
+          find bit-blocks-starter/cicd-pipelines/github-actions -type f -name "*.yml" | while read -r file; do
+            echo -e "\033[1;36m🔎 Checking:\033[0m $file"
+            actionlint -color "$file"
+          done
+
+
+  validate-gitlab-ci:
+    name: ✅ Validate GitLab CI Templates
+    runs-on: ubuntu-latest
+    env:
+      GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔎 Validate GitLab YAMLs via API
+        run: |
+          echo "🔍 Validating GitLab CI/CD templates..."
+          find bit-blocks-starter/cicd-pipelines/gitlab -type f -name "*.yml" | while read -r file; do
+            echo -e "\033[1;36m🔍 Linting:\033[0m $file"
+
+            # Format the raw content correctly for JSON POST
+            CONTENT=$(jq -Rs '.' < "$file")
+            PAYLOAD="{\"content\": $CONTENT}"
+
+            RESPONSE=$(curl --fail --silent --show-error \
+              --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+              --header "Content-Type: application/json" \
+              --data "$PAYLOAD" \
+              https://gitlab.com/api/v4/ci/lint)
+
+            STATUS=$(echo "$RESPONSE" | jq -r '.status')
+            if [ "$STATUS" = "valid" ]; then
+              echo -e "\033[1;32m✅ VALID\033[0m"
+            else
+              echo -e "\033[1;31m❌ INVALID\033[0m"
+              echo "$RESPONSE" | jq
+            fi
+          done

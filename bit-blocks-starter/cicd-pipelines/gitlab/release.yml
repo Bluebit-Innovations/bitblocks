@@ -1,0 +1,12 @@
+stages:
+  - release
+
+release:
+  stage: release
+  image: node:18
+  before_script:
+    - npm install -g semantic-release @semantic-release/git @semantic-release/changelog @semantic-release/npm @semantic-release/gitlab
+  script:
+    - semantic-release
+  only:
+    - main

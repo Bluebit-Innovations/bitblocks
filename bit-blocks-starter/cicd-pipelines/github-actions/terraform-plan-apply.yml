@@ -1,0 +1,37 @@
+name: 🌍 Terraform Plan & Apply
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infra
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🧰 Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.6
+
+    - name: 🔍 Terraform Format Check
+      run: terraform fmt -check
+
+    - name: 🧪 Terraform Init & Validate
+      run: |
+        terraform init
+        terraform validate
+
+    - name: 📊 Terraform Plan
+      run: terraform plan -out=tfplan
+
+    - name: ✅ Terraform Apply (manual approval)
+      if: github.event_name == 'workflow_dispatch'
+      run: terraform apply -auto-approve tfplan

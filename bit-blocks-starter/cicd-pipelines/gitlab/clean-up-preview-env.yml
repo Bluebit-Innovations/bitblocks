@@ -1,0 +1,11 @@
+stages:
+  - cleanup
+
+destroy_preview_env:
+  stage: cleanup
+  script:
+    - echo "Destroy preview environment for $CI_COMMIT_REF_NAME"
+    - vercel remove --token=$VERCEL_TOKEN --yes $CI_COMMIT_REF_NAME
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $CI_COMMIT_BRANCH != "main"'
+      when: always

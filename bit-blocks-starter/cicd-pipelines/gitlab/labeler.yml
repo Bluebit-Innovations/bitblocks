@@ -1,0 +1,17 @@
+stages:
+  - label
+
+auto_label:
+  stage: label
+  script:
+    - |
+      case "$CI_COMMIT_REF_NAME" in
+        feat/*) curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+          --data "labels=feature" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/labels" ;;
+        fix/*) curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+          --data "labels=bugfix" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/labels" ;;
+        chore/*) curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+          --data "labels=chore" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/labels" ;;
+      esac
+  only:
+    - merge_requests
