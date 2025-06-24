@@ -36,7 +36,7 @@ jobs:
           echo "🔍 Scanning GitHub Actions templates..."
           find bit-blocks-starter/cicd-pipelines/github-actions -type f -name "*.yml" | while read -r file; do
             echo -e "\033[1;36m🔎 Checking:\033[0m $file"
-            actionlint -color always "$file"
+            actionlint -color=always "$file"
           done
 
 
