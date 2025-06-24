@@ -55,8 +55,16 @@ jobs:
 
       - name: 🔐 Authenticate glab
         run: |
-          mkdir -p ~/.config/glab
-          echo -e "hosts:\n  gitlab.com:\n    token: $GITLAB_TOKEN" > ~/.config/glab-cli/config.yml
+          mkdir -p ~/.config/glab-cli
+          cat <<EOF > ~/.config/glab-cli/config.yml
+          hosts:
+            gitlab.com:
+              token: $GITLAB_TOKEN
+          EOF
+
+      - name: 🧪 Check glab authentication
+        run: glab auth status
+
 
       - name: 🔍 Lint GitLab CI Templates
         run: |
