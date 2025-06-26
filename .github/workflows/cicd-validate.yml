@@ -76,13 +76,13 @@ jobs:
           pwd
           ls ../bit-blocks-starter/
           # Confirm the directory exists
-          if [ ! -d "../bit-blocks-starter/cicd-pipelines/gitlab/" ]; then
+          if [ ! -d "bit-blocks-starter/cicd-pipelines/gitlab/" ]; then
             echo -e "\033[1;31m❌ Directory not found:\033[0m ../bit-blocks-starter/cicd-pipelines/gitlab/"
             exit 1
           fi
 
           # Confirm there are files in the directory
-          if [ -z "$(ls -A ../bit-blocks-starter/cicd-pipelines/gitlab/*.yml 2>/dev/null)" ]; then
+          if [ -z "$(ls -A bit-blocks-starter/cicd-pipelines/gitlab/*.yml 2>/dev/null)" ]; then
             echo -e "\033[1;31m❌ No YAML files found in:\033[0m ../bit-blocks-starter/cicd-pipelines/gitlab/"
             exit 1
           fi
