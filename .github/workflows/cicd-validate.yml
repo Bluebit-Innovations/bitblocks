@@ -38,43 +38,71 @@ jobs:
             echo -e "\033[1;36m🔎 Checking:\033[0m $file"
             actionlint -color "$file"
           done
-
-
   validate-gitlab-ci:
-    name: ✅ Lint GitLab CI Templates with glab
+    name: Validate GitLab CI Templates
     runs-on: ubuntu-latest
     env:
+      GITLAB_REPO: or4dx/bitblocks-ci-lint  # 🔁 Replace with your GitLab repo path
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🔧 Install glab CLI
+      - name: 📅 Clone GitLab repo for CI template linting
         run: |
-          sudo apt update
-          sudo apt install -y glab
+          curl -sSL https://gitlab.com/gitlab-org/cli/-/releases/permalink/latest/download/glab-linux-amd64 -o glab
+          chmod +x glab
+          sudo mv glab /usr/local/bin/
           glab --version
 
-      - name: 🔐 Configure glab authentication
+          git clone https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GITLAB_REPO}.git gitlab-ci-lint
+          cd gitlab-ci-lint
+
+          git config user.name "BitBlocks Lint Bot"
+          git config user.email "ci-lint@bitblocks.dev"
+
+      - name: 🔍 Lint GitLab CI templates
         run: |
-          mkdir -p ~/.config/glab-cli
-          cat <<EOF > ~/.config/glab-cli/config.yml
-          hosts:
-            gitlab.com:
-              token: $GITLAB_TOKEN
+          cd gitlab-ci-lint
+          for file in ../bit-blocks-starter/cicd-pipelines/gitlab/*.yml; do
+          filename=$(basename "$file")
+          template_path="templates/$filename"
+          branch_name="lint-${filename//.yml/}-$(date +%s)"
+
+          echo -e "\033[1;36m🔍 Linting Template:\033[0m $filename"
+
+          git checkout -b "$branch_name"
+
+          # Create templates/ and copy current file
+          mkdir -p templates
+          cp "$file" "$template_path"
+          # Replace .gitlab-ci.yml with reference to this template
+          cat <<EOF > .gitlab-ci.yml
+          variables:
+            TEMPLATE_FILE: "$template_path"
+
+          stages:
+            - validate
+
+          include:
+            - local: "\$TEMPLATE_FILE"
           EOF
 
-      - name: 🧪 Check glab authentication
-        run: glab auth status
+          git add .gitlab-ci.yml "$template_path"
+          git commit -m "Lint test for $filename"
+          git push origin "$branch_name"
 
-      - name: 🧪 Lint GitLab CI templates (no Git remote required)
-        run: |
-          echo "🔍 Linting GitLab pipeline templates via stdin..."
-          find bit-blocks-starter/cicd-pipelines/gitlab -type f -name "*.yml" | while read -r file; do
-            echo -e "\033[1;36m🔎 Linting:\033[0m $file"
-            if glab ci lint --stdin < "$file"; then
-              echo -e "\033[1;32m✔ Passed:\033[0m $file"
-            else
-              echo -e "\033[1;31m❌ Failed:\033[0m $file"
-            fi
+          echo "$GITLAB_TOKEN" | glab auth login --stdin
+
+          echo -e "\n🧲 Running glab ci lint..."
+          if glab ci lint; then
+            echo -e "\033[1;32m✔ Passed:\033[0m $filename"
+          else
+            echo -e "\033[1;31m❌ Failed:\033[0m $filename"
+          fi
+
+          # Clean up test branch
+          git push origin --delete "$branch_name" || true
+          git checkout main || git checkout master
           done
+
+      - name: 🗑️ Clean up
+        run: |
+          echo "Cleaning up..."
