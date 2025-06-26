@@ -45,12 +45,22 @@ jobs:
       GITLAB_REPO: or4dx/bitblocks-ci-lint  # 🔁 Replace with your GitLab repo path
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
     steps:
+      - name: 🔧 Install glab CLI
+        run: |
+          sudo apt update
+          sudo apt install -y glab
+          glab --version
+
+      - name: 🔐 Configure glab authentication
+        run: |
+          mkdir -p ~/.config/glab-cli
+          cat <<EOF > ~/.config/glab-cli/config.yml
+          hosts:
+            gitlab.com:
+              token: $GITLAB_TOKEN
+          EOF
       - name: 📅 Clone GitLab repo for CI template linting
         run: |
-          curl -sSL https://gitlab.com/gitlab-org/cli/-/releases/permalink/latest/download/glab-linux-amd64 -o glab
-          chmod +x glab
-          sudo mv glab /usr/local/bin/
-          glab --version
 
           git clone https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GITLAB_REPO}.git gitlab-ci-lint
           cd gitlab-ci-lint
