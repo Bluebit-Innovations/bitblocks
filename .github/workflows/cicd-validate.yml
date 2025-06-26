@@ -42,7 +42,7 @@ jobs:
     name: Validate GitLab CI Templates
     runs-on: ubuntu-latest
     env:
-      GITLAB_REPO: or4dx/bitblocks-ci-lint  # 🔁 Replace with your GitLab repo path
+      GITLAB_REPO: bluebit2/ghaction-gitlab-template-linter.git  # 🔁 Replace with your GitLab repo path
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
     steps:
       - name: 🔧 Install glab CLI
