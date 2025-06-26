@@ -73,6 +73,7 @@ jobs:
 
       - name: 🔍 Lint GitLab CI templates
         run: |
+          pwd
           ls ../bit-blocks-starter/
           # Confirm the directory exists
           if [ ! -d "../bit-blocks-starter/cicd-pipelines/gitlab/" ]; then
