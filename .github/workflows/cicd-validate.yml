@@ -45,6 +45,9 @@ jobs:
       GITLAB_REPO: bluebit2/ghaction-gitlab-template-linter  # 🔁 Replace with your GitLab repo path
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
       - name: 🔧 Install glab CLI
         run: |
           sudo apt update
