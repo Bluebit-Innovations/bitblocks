@@ -1,0 +1,20 @@
+stages:
+  - deploy
+
+pages:
+  image: node:18
+  stage: deploy
+  script:
+    - npm ci
+    - npm run build
+    - cd dist
+    - git init
+    - git config user.name "CI Bot"
+    - git config user.email "ci@example.com"
+    - git remote add origin https://$GH_TOKEN@github.com/$GH_REPO.git
+    - git checkout -b gh-pages
+    - git add .
+    - git commit -m "Deploy to GitHub Pages"
+    - git push --force origin gh-pages
+  only:
+    - main

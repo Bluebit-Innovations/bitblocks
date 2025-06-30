@@ -1,0 +1,23 @@
+stages:
+  - package
+  - deploy
+
+package_lambda:
+  stage: package
+  script:
+    - zip -r function.zip .
+  artifacts:
+    paths:
+      - function.zip
+
+deploy_lambda:
+  image: amazon/aws-cli
+  stage: deploy
+  script:
+    - aws lambda update-function-code \
+        --function-name $LAMBDA_FUNCTION_NAME \
+        --zip-file fileb://function.zip
+  only:
+    - main
+  environment:
+    name: production
