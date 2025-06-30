@@ -73,62 +73,31 @@ jobs:
 
       - name: 🔍 Lint GitLab CI templates
         run: |
-          pwd
-          ls bit-blocks-starter/
-          # Confirm the directory exists
-          if [ ! -d "bit-blocks-starter/cicd-pipelines/gitlab/" ]; then
-            echo -e "\033[1;31m❌ Directory not found:\033[0m ../bit-blocks-starter/cicd-pipelines/gitlab/"
-            exit 1
-          fi
-
-          # Confirm there are files in the directory
-          if [ -z "$(ls -A bit-blocks-starter/cicd-pipelines/gitlab/*.yml 2>/dev/null)" ]; then
-            echo -e "\033[1;31m❌ No YAML files found in:\033[0m ../bit-blocks-starter/cicd-pipelines/gitlab/"
-            exit 1
-          fi
           cd gitlab-ci-lint
           for file in ../bit-blocks-starter/cicd-pipelines/gitlab/*.yml; do
-          filename=$(basename "$file")
-          template_path="templates/$filename"
-          branch_name="lint-${filename//.yml/}-$(date +%s)"
+            filename=$(basename "$file")
+            branch="lint-${filename%%.*}-$(date +%s)"
+            echo "→ Testing $filename on branch $branch"
 
-          echo -e "\033[1;36m🔍 Linting Template:\033[0m $filename"
+            # Create test branch and overwrite CI
+            git checkout -b "$branch"
+            cp "$file" .gitlab-ci.yml
+            git add .gitlab-ci.yml
+            git commit -m "Lint: $filename"
+            git push origin "$branch"
 
-          git checkout -b "$branch_name"
-
-          # Create templates/ and copy current file
-          mkdir -p templates
-          cp "$file" "$template_path"
-          # Replace .gitlab-ci.yml with reference to this template
-          cat <<EOF > .gitlab-ci.yml
-          variables:
-            TEMPLATE_FILE: "$template_path"
-
-          stages:
-            - validate
-
-          include:
-            - local: "\$TEMPLATE_FILE"
-          EOF
-
-          git add .gitlab-ci.yml "$template_path"
-          git commit -m "Lint test for $filename"
-          git push origin "$branch_name"
-
-          echo "$GITLAB_TOKEN" | glab auth login --stdin
-
-          echo -e "\n🧲 Running glab ci lint..."
-          if glab ci lint; then
-            echo -e "\033[1;32m✔ Passed:\033[0m $filename"
-          else
-            echo -e "\033[1;31m❌ Failed:\033[0m $filename"
-          fi
-
-          # Clean up test branch
-          git push origin --delete "$branch_name" || true
-          git checkout main || git checkout master
+            # Authenticate and lint
+            echo "$GITLAB_TOKEN" | glab auth login --stdin
+            if glab ci lint; then
+              echo "✅ $filename passed"
+            else
+              echo "❌ $filename failed"
+            fi
           done
 
       - name: 🗑️ Clean up
         run: |
           echo "Cleaning up..."
+          # Clean up test branch
+          git push origin --delete "$branch" || true
+          git checkout main || git checkout master
