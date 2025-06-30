@@ -93,11 +93,12 @@ jobs:
             else
               echo "❌ $filename failed"
             fi
+
+          # Clean up test branch
+          git push origin --delete "$branch" || true
+          git checkout main || git checkout master
           done
 
       - name: 🗑️ Clean up
         run: |
           echo "Cleaning up..."
-          # Clean up test branch
-          git push origin --delete "$branch" || true
-          git checkout main || git checkout master
