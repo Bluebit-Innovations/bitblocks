@@ -1,0 +1,25 @@
+{
+    "uid": "sec_compliance_prometheus",
+    "title": "Security & Compliance Overview",
+    "schemaVersion": 27,
+    "version": 3,
+    "timezone": "browser",
+    "style": "light",
+    "templating": {
+      "list": [
+        {"name": "datasource", "type": "datasource", "pluginId": "prometheus", "query": "prometheus"}
+      ]
+    },
+    "panels": [
+      {"id":1,"gridPos":{"x":0,"y":0,"w":12,"h":3},"type":"text","options":{"content":"<div style='font-size:28px;font-weight:bold;text-align:center;color:#2c3e50;'>🔒 Security & Compliance Dashboard</div>","mode":"html"},"transparent":true},
+      {"id":2,"gridPos":{"x":0,"y":3,"w":4,"h":5},"type":"stat","title":"Critical Vulnerabilities","datasource":"$datasource","targets":[{"refId":"A","expr":"vulnerabilities_total{severity=\"critical\"}"}],"fieldConfig":{"defaults":{"unit":"none","thresholds":{"mode":"absolute","steps":[{"color":"#2ecc71","value":null},{"color":"#f1c40f","value":10},{"color":"#e74c3c","value":20}]},"decimals":0}},"options":{"reduceOptions":{"calcs":["last"]},"sparkline":{"show":true,"full":false,"lineColor":"#2980b9"}},"transparent":false},
+      {"id":3,"gridPos":{"x":4,"y":3,"w":4,"h":5},"type":"bargauge","title":"Patch Compliance %","datasource":"$datasource","targets":[{"refId":"A","expr":"patch_compliance_percent"}],"fieldConfig":{"defaults":{"unit":"percent","thresholds":{"mode":"absolute","steps":[{"color":"#e74c3c","value":0},{"color":"#f1c40f","value":70},{"color":"#2ecc71","value":90}]}}},"options":{"showUnfilled":false},"transparent":false},
+      {"id":4,"gridPos":{"x":8,"y":3,"w":4,"h":5},"type":"stat","title":"Certs Expiring < 30d","datasource":"$datasource","targets":[{"refId":"A","expr":"tls_cert_expiry_days"}],"fieldConfig":{"defaults":{"unit":"none","decimals":0}},"options":{"reduceOptions":{"calcs":["last"]}},"transparent":false},
+      {"id":5,"gridPos":{"x":0,"y":8,"w":6,"h":5},"type":"timeseries","title":"Auth Success vs Failures","datasource":"$datasource","targets":[{"refId":"A","expr":"rate(auth_success_total[5m])","alias":"Success"},{"refId":"B","expr":"rate(auth_fail_total[5m])","alias":"Failures"}],"fieldConfig":{"defaults":{"thresholds":{"mode":"absolute","steps":[{"color":"#2ecc71","value":null},{"color":"#e74c3c","value":50}]}}},"options":{"legend":{"displayMode":"list","placement":"bottom"}},"transparent":true},
+      {"id":6,"gridPos":{"x":6,"y":8,"w":6,"h":5},"type":"timeseries","title":"Log Ingestion Rate","datasource":"$datasource","targets":[{"refId":"A","expr":"rate(log_ingest_rate[5m])","alias":"Ingestion"}],"fieldConfig":{"defaults":{"unit":"ops/s"}},"options":{"legend":{"displayMode":"hidden"}},"transparent":true},
+      {"id":7,"gridPos":{"x":0,"y":13,"w":6,"h":5},"type":"heatmap","title":"Suspicious Network Ports","datasource":"$datasource","targets":[{"refId":"A","expr":"sum by(port)(rate(net_conn_count[5m]))"}],"options":{"color":{"mode":"spectrum"}},"transparent":true},
+      {"id":8,"gridPos":{"x":6,"y":13,"w":6,"h":5},"type":"barchart","title":"Malware Alerts by Host","datasource":"$datasource","targets":[{"refId":"A","expr":"sum by(host)(rate(intrusion_alerts_total[5m]))"}],"options":{"orientation":"horizontal"},"transparent":true},
+      {"id":9,"gridPos":{"x":0,"y":18,"w":6,"h":5},"type":"table","title":"Recent Privilege Changes","datasource":"$datasource","targets":[{"refId":"A","expr":"role_changes_total"}],"options":{"showHeader":true},"transparent":true},
+      {"id":10,"gridPos":{"x":6,"y":18,"w":6,"h":5},"type":"piechart","title":"Policy Violations","datasource":"$datasource","targets":[{"refId":"A","expr":"policy_violations_total"}],"options":{"legend":{"placement":"right"}},"transparent":true}
+    ]
+  }

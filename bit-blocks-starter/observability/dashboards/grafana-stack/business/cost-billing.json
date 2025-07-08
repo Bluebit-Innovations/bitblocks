@@ -1,0 +1,124 @@
+{
+    "id": null,
+    "uid": "cost-billing-bitblock",
+    "title": "Cost & Billing Dashboard - BitBlock",
+    "tags": ["billing","cost","analytics"],
+    "timezone": "browser",
+    "schemaVersion": 37,
+    "version": 1,
+    "refresh": "5m",
+    "templating": {
+      "list": [
+        {
+          "type": "datasource",
+          "name": "datasource",
+          "label": "Data Source",
+          "query": ".*",
+          "current": {"text":"Select a datasource","value":""}
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "uid": "1",
+        "title": "Total Spend Over Time",
+        "type": "timeseries",
+        "gridPos": {"x":0,"y":0,"w":12,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"random_walk()"}]
+      },
+      {
+        "id": 2,
+        "uid": "2",
+        "title": "Spend by Service",
+        "type": "piechart",
+        "gridPos": {"x":12,"y":0,"w":6,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"table(rows=5,cols=['service','value'])"}],
+        "options":{"legend":{"displayMode":"list"}}
+      },
+      {
+        "id": 3,
+        "uid": "3",
+        "title": "Daily Spend Heatmap",
+        "type": "heatmap",
+        "gridPos": {"x":18,"y":0,"w":6,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"heatmap()"}]
+      },
+      {
+        "id": 4,
+        "uid": "4",
+        "title": "Budget vs Actual",
+        "type": "gauge",
+        "gridPos": {"x":0,"y":6,"w":6,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"random_walk()"}]
+      },
+      {
+        "id": 5,
+        "uid": "5",
+        "title": "Forecasted Spend",
+        "type": "timeseries",
+        "gridPos": {"x":6,"y":6,"w":6,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"random_walk_forecast()"}]
+      },
+      {
+        "id": 6,
+        "uid": "6",
+        "title": "Cost Anomalies",
+        "type": "table",
+        "gridPos": {"x":12,"y":6,"w":6,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"anomaly()"}]
+      },
+      {
+        "id": 7,
+        "uid": "7",
+        "title": "Cost by Env/Tag",
+        "type": "barchart",
+        "gridPos": {"x":18,"y":6,"w":6,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"table(rows=3,cols=['tag','value'])"}]
+      },
+      {
+        "id": 8,
+        "uid": "8",
+        "title": "Waste & Idle Cost",
+        "type": "piechart",
+        "gridPos": {"x":0,"y":12,"w":6,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"table(rows=4,cols=['resource','value'])"}]
+      },
+      {
+        "id": 9,
+        "uid": "9",
+        "title": "Top 10 Expensive Resources",
+        "type": "table",
+        "gridPos": {"x":6,"y":12,"w":12,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"table(rows=10,cols=['resource','value'])"}]
+      },
+      {
+        "id": 10,
+        "uid": "10",
+        "title": "Cost per Active User",
+        "type": "stat",
+        "gridPos": {"x":18,"y":12,"w":6,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"random_walk()"}]
+      },
+      {
+        "id": 11,
+        "uid": "11",
+        "title": "Reserved vs On-Demand",
+        "type": "barchart",
+        "gridPos": {"x":0,"y":18,"w":12,"h":6},
+        "datasource": "${datasource}",
+        "targets":[{"refId":"A","expr":"table(rows=2,cols=['type','value'])"}]
+      }
+    ]
+  }
+  

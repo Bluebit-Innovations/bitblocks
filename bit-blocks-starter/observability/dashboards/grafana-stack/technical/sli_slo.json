@@ -1,0 +1,163 @@
+{
+    "id": null,
+    "uid": "error_budget",
+    "title": "Error Budget Dashboard",
+    "tags": ["slo","error‐budget"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 0,
+    "refresh": "1m",
+    "time": { "from": "now-1d", "to": "now" },
+    "panels": [
+      {
+        "id": 1,
+        "type": "markdown",
+        "title": "SLI/SLO Definitions",
+        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 4 },
+        "options": {
+          "mode": "markdown",
+          "content": "**Availability SLI** = successful_2xx / total_requests\n**Error Budget** = 1 - SLO\n**Burn Rate** = error_rate / error_budget_window\n..."
+        }
+      },
+      {
+        "id": 2,
+        "type": "timeseries",
+        "title": "Availability SLI",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(increase(http_requests_total{status=~\"2..\"}[1h])) / sum(increase(http_requests_total[1h]))",
+            "legendFormat": "SLI",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 3,
+        "type": "stat",
+        "title": "Error Budget Remaining %",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 4, "w": 6, "h": 6 },
+        "targets": [
+          {
+            "expr": "100 * (sum(increase(http_requests_total{status=~\"2..\"}[1h])) / sum(increase(http_requests_total[1h])))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 4,
+        "type": "bargauge",
+        "title": "Burn Rate",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 18, "y": 4, "w": 6, "h": 6 },
+        "targets": [
+          {
+            "expr": "(1 - (sum(increase(http_requests_total{status=~\"2..\"}[1h])) / sum(increase(http_requests_total[1h])))) / (0.01 / 3600)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "short" } }
+      },
+      {
+        "id": 5,
+        "type": "stat",
+        "title": "Time until Budget Exhaustion",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 10, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "/* calculate based on burn rate & budget */", "refId": "A" }
+        ]
+      },
+      {
+        "id": 6,
+        "type": "timeseries",
+        "title": "Latency SLI",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 8, "y": 10, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "sum(increase(http_request_duration_seconds_bucket{le=\"0.5\"}[1h])) / sum(increase(http_request_duration_seconds_count[1h]))", "refId": "A" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 7,
+        "type": "timeseries",
+        "title": "Error Rate SLI",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 16, "y": 10, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "1 - (sum(increase(http_requests_total{status=~\"2..\"}[1h])) / sum(increase(http_requests_total[1h])))", "refId": "A" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 8,
+        "type": "timeseries",
+        "title": "Throughput SLI",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 16, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "sum(rate(http_requests_total[1m]))", "refId": "A" }
+        ]
+      },
+      {
+        "id": 9,
+        "type": "timeseries",
+        "title": "Success Rate SLI",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 8, "y": 16, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "sum(rate(http_requests_total{status=~\"2..\"}[1m])) / sum(rate(http_requests_total[1m]))", "refId": "A" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 10,
+        "type": "timeseries",
+        "title": "SLI Trend",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 16, "y": 16, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "sum(increase(http_requests_total{status=~\"2..\"}[1h])) / sum(increase(http_requests_total[1h]))", "legendFormat": "SLI over time", "refId": "A" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 11,
+        "type": "stat",
+        "title": "Availability SLO",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 22, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "99.9", "refId": "A" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 12,
+        "type": "table",
+        "title": "SLO Compliance History",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 8, "y": 22, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "/* historical SLO eval results */", "refId": "A" }
+        ],
+        "options": { "showHeader": true }
+      },
+      {
+        "id": 13,
+        "type": "stat",
+        "title": "Projected Breach Date",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 16, "y": 22, "w": 8, "h": 6 },
+        "targets": [
+          { "expr": "/* calculate breach timestamp */", "refId": "A" }
+        ]
+      }
+    ]
+  }
+  

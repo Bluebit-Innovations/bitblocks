@@ -1,0 +1,162 @@
+{
+    "id": null,
+    "uid": "clv_overview_bitblock",
+    "title": "Customer Lifetime Value Overview (BitBlock)",
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "30s",
+    "style": "dark",
+    "editable": true,
+    "gnetId": null,
+    "panels": [
+      {
+        "type": "stat",
+        "title": "ARPU (6m)",
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "sum(rate(revenue[6m])) / sum(count_over_time(users[6m]))", "refId": "A" }
+        ],
+        "options": {
+          "graphMode": "sparkline",
+          "sparkline": { "show": true },
+          "fieldOptions": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 2
+            }
+          }
+        }
+      },
+      {
+        "type": "stat",
+        "title": "CLV : CAC Ratio",
+        "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "(forecast_clv) / (sum(rate(marketing_cost[30d])))", "refId": "A" }
+        ],
+        "options": {
+          "fieldOptions": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "value": null, "color": "red" },
+                  { "value": 3, "color": "orange" },
+                  { "value": 5, "color": "green" }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "heatmap",
+        "title": "Monthly Cohort Retention",
+        "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "cohort_retention_percent", "refId": "A" }
+        ],
+        "options": {
+          "color": { "mode": "spectrum", "palette": "interpolateRainbow" },
+          "heatmap": { "mode": "spectrum" }
+        }
+      },
+      {
+        "type": "timeseries",
+        "title": "Projected CLV Trend",
+        "gridPos": { "x": 0, "y": 10, "w": 6, "h": 5 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "actual_clv", "refId": "A" },
+          { "expr": "forecast_clv", "refId": "B" }
+        ],
+        "options": {
+          "legend": { "show": true, "placement": "bottom" }
+        }
+      },
+      {
+        "type": "timeseries",
+        "title": "Churn Rate Over Time",
+        "gridPos": { "x": 6, "y": 10, "w": 6, "h": 5 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "rate(churn_total[1m]) * 100", "refId": "A" }
+        ],
+        "options": {
+          "fillOpacity": 60,
+          "tooltip": { "mode": "all" },
+          "fieldOptions": {
+            "defaults": { "unit": "percent" }
+          }
+        }
+      },
+      {
+        "type": "histogram",
+        "title": "ARPU Distribution",
+        "gridPos": { "x": 0, "y": 15, "w": 6, "h": 5 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "histogram_quantile(0.5, sum by (le) (rate(user_revenue_bucket[30d])))", "refId": "A" }
+        ]
+      },
+      {
+        "type": "barchart",
+        "title": "LTV vs CAC by Channel",
+        "gridPos": { "x": 6, "y": 15, "w": 6, "h": 5 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "sum by (channel) (forecast_clv) / sum by (channel) (rate(marketing_cost[30d]))", "refId": "A" }
+        ],
+        "options": {
+          "legend": { "show": true, "placement": "bottom" }
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Repeat Purchase Rate",
+        "gridPos": { "x": 0, "y": 20, "w": 3, "h": 4 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "sum(rate(second_purchase_total[30d])) / sum(rate(first_purchase_total[30d])) * 100", "refId": "A" }
+        ],
+        "options": {
+          "fieldOptions": {
+            "defaults": { "unit": "percent", "decimals": 1 }
+          }
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Time to 2nd Purchase (days)",
+        "gridPos": { "x": 3, "y": 20, "w": 3, "h": 4 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "histogram_quantile(0.5, rate(time_to_second_purchase_seconds_bucket[30d])) / 86400", "refId": "A" }
+        ],
+        "options": {
+          "fieldOptions": {
+            "defaults": { "unit": "d", "decimals": 0 }
+          }
+        }
+      },
+      {
+        "type": "piechart",
+        "title": "Revenue by Segment",
+        "gridPos": { "x": 6, "y": 20, "w": 6, "h": 4 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "expr": "sum by (segment) (revenue)", "refId": "A" }
+        ],
+        "options": {
+          "legend": { "show": true, "placement": "right" }
+        }
+      }
+    ]
+  }
+  

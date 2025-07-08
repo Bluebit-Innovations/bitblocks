@@ -1,0 +1,88 @@
+{
+    "id": null,
+    "uid": "k8s_scheduler_health",
+    "title": "K8s Scheduler Health",
+    "tags": ["kubernetes","scheduler"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 0,
+    "refresh": "30s",
+    "time": { "from": "now-6h", "to": "now" },
+    "templating": {
+      "list": [
+        {
+          "name": "namespace",
+          "type": "query",
+          "label": "Namespace",
+          "datasource": "Prometheus",
+          "query": "label_values(kube_pod_schedulable_duration_seconds_bucket, namespace)",
+          "multi": true,
+          "includeAll": true,
+          "current": { "text": "All", "value": [".*"] }
+        },
+        {
+          "name": "node",
+          "type": "query",
+          "label": "Node",
+          "datasource": "Prometheus",
+          "query": "label_values(kube_node_info, node)",
+          "multi": true,
+          "includeAll": true,
+          "current": { "text": "All", "value": [".*"] }
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "type": "timeseries",
+        "title": "Pod Scheduling Latency P95",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(kube_pod_schedulable_duration_seconds_bucket{namespace=~\"$namespace\"}[5m])) by (le))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "s" } }
+      },
+      {
+        "id": 2,
+        "type": "timeseries",
+        "title": "Pod Evictions/min",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(kube_pod_container_status_terminated_reason{reason=\"Evicted\",namespace=~\"$namespace\"}[5m]))",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "type": "table",
+        "title": "Nodes with Evictions",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum by(node,reason)(increase(kube_pod_container_status_terminated_reason{reason=\"Evicted\",namespace=~\"$namespace\"}[1h]))",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "include": ["node", "reason", "Value"],
+              "rename": { "Value": "count" }
+            }
+          }
+        ],
+        "options": { "showHeader": true }
+      }
+    ]
+  }
+  

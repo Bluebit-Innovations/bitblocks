@@ -1,0 +1,234 @@
+{
+    "title": "Incident Response Timeline",
+    "uid": "incident_response_prom",
+    "__inputs": [
+      {
+        "name": "DS_PROMETHEUS",
+        "label": "Prometheus",
+        "description": "Select your Prometheus datasource",
+        "type": "datasource",
+        "pluginId": "prometheus"
+      }
+    ],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 32,
+    "version": 1,
+    "tags": ["bitblock", "incident-response"],
+    "panels": [
+      {
+        "id": 1,
+        "type": "timeseries",
+        "title": "Incident Count Over Time",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(increase(incident_events_total[$__interval]))"
+          }
+        ],
+        "fieldConfig": { "defaults": { "custom": { "wrapMode": "auto" } } },
+        "options": {
+          "legend": { "displayMode": "list" },
+          "tooltip": { "mode": "single" }
+        }
+      },
+      {
+        "id": 2,
+        "type": "stat",
+        "title": "Mean Time To Acknowledge (MTTA)",
+        "gridPos": { "x": 12, "y": 0, "w": 12, "h": 4 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "avg_over_time(incident_ack_time_seconds[$__interval])"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 0,
+            "custom": { "wrapMode": "auto" }
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "horizontal"
+        }
+      },
+      {
+        "id": 3,
+        "type": "stat",
+        "title": "Mean Time To Resolve (MTTR)",
+        "gridPos": { "x": 12, "y": 4, "w": 12, "h": 4 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "avg_over_time(incident_resolution_time_seconds[$__interval])"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 0,
+            "custom": { "wrapMode": "auto" }
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "horizontal"
+        }
+      },
+      {
+        "id": 4,
+        "type": "piechart",
+        "title": "Incident Severity Distribution",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "count by (severity)(incident_events_total)"
+          }
+        ],
+        "fieldConfig": { "defaults": { "custom": { "wrapMode": "auto" } } },
+        "options": { "legend": { "displayMode": "table" } }
+      },
+      {
+        "id": 5,
+        "type": "barchart",
+        "title": "Top Affected Services",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "topk(5, sum by (service)(increase(incident_events_total[1h])))"
+          }
+        ],
+        "fieldConfig": { "defaults": { "custom": { "wrapMode": "auto" } } },
+        "options": {
+          "legend": { "displayMode": "hidden" },
+          "tooltip": { "mode": "all" }
+        }
+      },
+      {
+        "id": 6,
+        "type": "table",
+        "title": "Incident Backlog (Open vs. Closed)",
+        "gridPos": { "x": 0, "y": 14, "w": 12, "h": 6 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          { "refId": "Open", "expr": "count(incident_open_total)" },
+          { "refId": "Closed", "expr": "count(incident_closed_total)" }
+        ],
+        "options": { "showHeader": true, "scroll": true },
+        "fieldConfig": { "defaults": { "custom": { "wrapMode": "auto" } } }
+      },
+      {
+        "id": 7,
+        "type": "gauge",
+        "title": "SLA Compliance Rate",
+        "gridPos": { "x": 12, "y": 14, "w": 12, "h": 6 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(increase(incident_sla_met_total[1d])) / sum(increase(incident_events_total[1d]))"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 1,
+            "custom": { "wrapMode": "auto" }
+          }
+        },
+        "options": { "minValue": 0, "maxValue": 1 }
+      },
+      {
+        "id": 8,
+        "type": "heatmap",
+        "title": "On-Call Load by Engineer",
+        "gridPos": { "x": 0, "y": 20, "w": 12, "h": 6 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum by (engineer)(increase(incident_assigned_total[1d]))"
+          }
+        ],
+        "fieldConfig": { "defaults": { "custom": { "wrapMode": "auto" } } },
+        "options": { "showLegend": false }
+      },
+      {
+        "id": 9,
+        "type": "barchart",
+        "title": "Incident Root-Cause Breakdown",
+        "gridPos": { "x": 12, "y": 20, "w": 12, "h": 6 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "count by (root_cause)(incident_events_total)"
+          }
+        ],
+        "fieldConfig": { "defaults": { "custom": { "wrapMode": "auto" } } },
+        "options": { "legend": { "displayMode": "hidden" } }
+      },
+      {
+        "id": 10,
+        "type": "timeseries",
+        "title": "Alert Volume vs Incident Volume",
+        "gridPos": { "x": 0, "y": 26, "w": 24, "h": 8 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "Alerts",
+            "expr": "sum(increase(alerts_total[$__interval]))"
+          },
+          {
+            "refId": "Incidents",
+            "expr": "sum(increase(incident_events_total[$__interval]))"
+          }
+        ],
+        "fieldConfig": { "defaults": { "custom": { "wrapMode": "auto" } } },
+        "options": {
+          "tooltip": { "mode": "multi" },
+          "legend": { "placement": "bottom" }
+        }
+      },
+      {
+        "id": 12,
+        "type": "timeseries",
+        "title": "Response Timeline Scatter",
+        "gridPos": { "x": 0, "y": 42, "w": 24, "h": 6 },
+        "datasource": "$DS_PROMETHEUS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "timestamp(incident_events_total)"
+          }
+        ],
+        "fieldConfig": { "defaults": { "custom": { "wrapMode": "auto" } } },
+        "options": {
+          "graphMode": "points",
+          "legend": { "displayMode": "hidden" }
+        }
+      }
+    ]
+  }
+  

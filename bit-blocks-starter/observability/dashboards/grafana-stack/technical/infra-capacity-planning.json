@@ -1,0 +1,249 @@
+{
+    "id": 2,
+    "uid": "infra-cap-prometheus",
+    "title": "Infra Capacity Planning",
+    "tags": ["bitblock", "capacity"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "30s",
+    "time": { "from": "now-6h", "to": "now" },
+    "templating": {
+      "list": [
+        {
+          "type": "datasource",
+          "name": "datasource",
+          "label": "Prometheus Datasource",
+          "pluginId": "prometheus",
+          "query": "prometheus",
+          "current": { "text": "Prometheus", "value": "Prometheus" }
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 6 },
+        "type": "timeseries",
+        "title": "Cluster CPU Utilization",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(rate(container_cpu_usage_seconds_total[5m])) by (cluster)",
+            "legendFormat": "{{cluster}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 70 },
+                { "color": "red", "value": 90 }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "options": { "showThresholdMarkers": true }
+      },
+      {
+        "id": 2,
+        "gridPos": { "x": 6, "y": 0, "w": 6, "h": 6 },
+        "type": "gauge",
+        "title": "Cluster Memory Utilization",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(container_memory_working_set_bytes) by (cluster) / sum(machine_memory_bytes) by (cluster) * 100",
+            "legendFormat": "{{cluster}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 70 },
+                { "color": "red", "value": 90 }
+              ]
+            }
+          },
+          "overrides": []
+        }
+      },
+      {
+        "id": 3,
+        "gridPos": { "x": 0, "y": 6, "w": 6, "h": 6 },
+        "type": "stat",
+        "title": "Disk Usage & IOPS",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "(sum(node_filesystem_size_bytes{fstype!~\"tmpfs|rootfs\"}) - sum(node_filesystem_free_bytes{fstype!~\"tmpfs|rootfs\"})) / sum(node_filesystem_size_bytes{fstype!~\"tmpfs|rootfs\"}) * 100",
+            "legendFormat": "Usage %"
+          },
+          {
+            "refId": "B",
+            "expr": "sum(rate(node_disk_reads_completed_total[5m])) + sum(rate(node_disk_writes_completed_total[5m]))",
+            "legendFormat": "IOPS"
+          }
+        ],
+        "options": { "sparkline": { "show": true } },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "orange", "value": 10000 },
+                { "color": "red", "value": 20000 }
+              ]
+            }
+          },
+          "overrides": []
+        }
+      },
+      {
+        "id": 4,
+        "gridPos": { "x": 6, "y": 6, "w": 6, "h": 6 },
+        "type": "timeseries",
+        "title": "Network Traffic",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(rate(node_network_receive_bytes_total[5m])) by (instance)",
+            "legendFormat": "Ingress {{instance}}"
+          },
+          {
+            "refId": "B",
+            "expr": "sum(rate(node_network_transmit_bytes_total[5m])) by (instance)",
+            "legendFormat": "Egress {{instance}}"
+          }
+        ],
+        "options": { "tooltip": { "mode": "single" } }
+      },
+      {
+        "id": 5,
+        "gridPos": { "x": 0, "y": 12, "w": 6, "h": 6 },
+        "type": "table",
+        "title": "Pod Requests vs Limits",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(kube_pod_container_resource_requests_cpu_cores) by (pod)",
+            "legendFormat": "Req CPU"
+          },
+          {
+            "refId": "B",
+            "expr": "sum(rate(container_cpu_usage_seconds_total[5m])) by (pod)",
+            "legendFormat": "Used CPU"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "gridPos": { "x": 6, "y": 12, "w": 6, "h": 6 },
+        "type": "stat",
+        "title": "Node Count & Autoscaler",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "count(kube_node_info)",
+            "legendFormat": "Nodes"
+          },
+          {
+            "refId": "B",
+            "expr": "increase(cluster_autoscaler_node_scale_up_events_total[1h])",
+            "legendFormat": "Scale-Ups (1h)"
+          }
+        ],
+        "options": { "sparkline": { "show": true } }
+      },
+      {
+        "id": 7,
+        "gridPos": { "x": 0, "y": 18, "w": 6, "h": 6 },
+        "type": "heatmap",
+        "title": "Resource Saturation Heatmap",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "rate(container_cpu_usage_seconds_total[5m]) by (instance)",
+            "legendFormat": "CPU {{instance}}"
+          }
+        ],
+        "options": { "showLegend": false }
+      },
+      {
+        "id": 8,
+        "gridPos": { "x": 6, "y": 18, "w": 6, "h": 6 },
+        "type": "timeseries",
+        "title": "Capacity Forecast & Trend",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "predict_linear(sum(rate(container_cpu_usage_seconds_total[5m])) by (cluster)[1h:1m], 86400)",
+            "legendFormat": "Forecast"
+          }
+        ],
+        "options": { "graph": { "lines": true, "fill": 0.2 } }
+      },
+      {
+        "id": 9,
+        "gridPos": { "x": 0, "y": 24, "w": 6, "h": 6 },
+        "type": "barchart",
+        "title": "Pod Density per Node",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "count(kube_pod_info) by (node)",
+            "legendFormat": "Pods {{node}}"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "gridPos": { "x": 6, "y": 24, "w": 6, "h": 6 },
+        "type": "stat",
+        "title": "Node Health & Availability",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "count(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
+            "legendFormat": "Ready"
+          }
+        ],
+        "options": { "sparkline": { "show": true } }
+      },
+      {
+        "id": 11,
+        "gridPos": { "x": 0, "y": 30, "w": 12, "h": 6 },
+        "type": "stat",
+        "title": "Cost Efficiency (USD/vCPU)",
+        "description": "Replace `cloud_cost_per_vcpu_usd` with your cost-exporter metric",
+        "datasource": "$datasource",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(rate(cloud_cost_per_vcpu_usd[5m])) by (cluster)",
+            "legendFormat": "Cost/vCPU"
+          }
+        ],
+        "options": { "sparkline": { "show": true } }
+      }
+    ],
+    "annotations": { "list": [] }
+  }
+  
