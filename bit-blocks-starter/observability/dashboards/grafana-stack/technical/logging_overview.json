@@ -1,0 +1,153 @@
+{
+    "id": null,
+    "uid": "logging_overview",
+    "title": "Logging Overview",
+    "tags": ["logging","loki","overview"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 0,
+    "refresh": "30s",
+    "time": { "from": "now-1h", "to": "now" },
+    "panels": [
+      {
+        "id": 1,
+        "type": "text",
+        "title": "Query Adjustment Guide",
+        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 3 },
+        "options": {
+          "mode": "markdown",
+          "content": "You can adjust the `{job=\"app\"}` label and time windows directly in each query. For any panel, edit its PromQL or LogQL expression to narrow or broaden the scope."
+        }
+      },
+      {
+        "id": 2,
+        "title": "Log Volume",
+        "type": "timeseries",
+        "datasource": "Loki",
+        "gridPos": { "x": 0, "y": 3, "w": 24, "h": 6 },
+        "targets": [
+          {
+            "expr": "count_over_time({job=\"app\"}[1m])",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Error Logs/sec",
+        "type": "stat",
+        "datasource": "Loki",
+        "gridPos": { "x": 0, "y": 9, "w": 12, "h": 5 },
+        "targets": [
+          {
+            "expr": "count_over_time({job=\"app\"} |= \"ERROR\"[1m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "short" } }
+      },
+      {
+        "id": 4,
+        "title": "Top Log Sources",
+        "type": "bargauge",
+        "datasource": "Loki",
+        "gridPos": { "x": 12, "y": 9, "w": 12, "h": 5 },
+        "targets": [
+          {
+            "expr": "topk(5, sum by (filename)(count_over_time({job=\"app\"}[5m])))",
+            "legendFormat": "{{filename}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "short" } }
+      },
+      {
+        "id": 5,
+        "title": "Error Logs",
+        "type": "timeseries",
+        "datasource": "Loki",
+        "gridPos": { "x": 0, "y": 14, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "rate({job=\"app\"} |= \"ERROR\"[5m])",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Warning Logs",
+        "type": "timeseries",
+        "datasource": "Loki",
+        "gridPos": { "x": 12, "y": 14, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "rate({job=\"app\"} |= \"WARN\"[5m])",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Info Logs",
+        "type": "timeseries",
+        "datasource": "Loki",
+        "gridPos": { "x": 0, "y": 20, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "rate({job=\"app\"} |= \"INFO\"[5m])",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Top Log Sources (Table)",
+        "type": "table",
+        "datasource": "Loki",
+        "gridPos": { "x": 12, "y": 20, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "topk(5, sum by (filename)(count_over_time({job=\"app\"}[5m])))",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "include": ["filename", "Value"],
+              "rename": { "Value": "count" }
+            }
+          }
+        ],
+        "options": { "showHeader": true }
+      },
+      {
+        "id": 9,
+        "title": "Log Rate by Severity",
+        "type": "bargauge",
+        "datasource": "Loki",
+        "gridPos": { "x": 0, "y": 26, "w": 24, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(rate({job=\"app\"} |= \"ERROR\"[5m]))",
+            "legendFormat": "Error",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate({job=\"app\"} |= \"WARN\"[5m]))",
+            "legendFormat": "Warning",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(rate({job=\"app\"} |= \"INFO\"[5m]))",
+            "legendFormat": "Info",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "short" } }
+      }
+    ]
+  }
+  

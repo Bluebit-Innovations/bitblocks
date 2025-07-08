@@ -1,0 +1,11 @@
+stages:
+  - security
+
+security_scan:
+  image: aquasec/trivy:latest
+  stage: security
+  script:
+    - trivy fs --exit-code 1 --severity CRITICAL,HIGH .
+  only:
+    - merge_requests
+    - main

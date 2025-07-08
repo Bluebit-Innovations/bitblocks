@@ -1,0 +1,119 @@
+{
+    "id": null,
+    "uid": "marketing_perf_local",
+    "title": "Marketing Performance (BitBlock)",
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "30s",
+    "style": "dark",
+    "editable": true,
+    "gnetId": null,
+    "panels": [
+      {
+        "type": "timeseries",
+        "title": "Total Ad Spend vs. Budget",
+        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "stat",
+        "title": "ROAS (Return on Ad Spend)",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "stat",
+        "title": "Cost Per Acquisition (CPA)",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "barchart",
+        "title": "Conversion Rate by Channel",
+        "gridPos": { "x": 0, "y": 14, "w": 24, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "table",
+        "title": "Funnel Overview",
+        "gridPos": { "x": 0, "y": 20, "w": 24, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "timeseries",
+        "title": "Impressions & CTR",
+        "gridPos": { "x": 0, "y": 26, "w": 24, "h": 8 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [
+          { "refId": "A" },
+          { "refId": "B", "yaxis": 2 }
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "Leads Generated Over Time",
+        "gridPos": { "x": 0, "y": 34, "w": 24, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "heatmap",
+        "title": "Campaign Performance Heatmap",
+        "gridPos": { "x": 0, "y": 40, "w": 24, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "barchart",
+        "title": "Top 10 Campaigns by Spend",
+        "gridPos": { "x": 0, "y": 46, "w": 24, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "geomap",
+        "title": "Geographic Performance",
+        "gridPos": { "x": 0, "y": 52, "w": 24, "h": 8 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "stat",
+        "title": "Landing Page Bounce Rate",
+        "gridPos": { "x": 0, "y": 60, "w": 24, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "timeseries",
+        "title": "Email Open & Click Rates",
+        "gridPos": { "x": 0, "y": 66, "w": 24, "h": 8 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [
+          { "refId": "A" },
+          { "refId": "B" }
+        ]
+      },
+      {
+        "type": "table",
+        "title": "Social Engagement Metrics",
+        "gridPos": { "x": 0, "y": 74, "w": 24, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      },
+      {
+        "type": "barchart",
+        "title": "Device / Platform Breakdown",
+        "gridPos": { "x": 0, "y": 80, "w": 24, "h": 6 },
+        "datasource": "${DS_BITBLOCK}",
+        "targets": [{ "refId": "A" }]
+      }
+    ]
+  }
+  

@@ -38,38 +38,67 @@ jobs:
             echo -e "\033[1;36m🔎 Checking:\033[0m $file"
             actionlint -color "$file"
           done
-
-
   validate-gitlab-ci:
-    name: ✅ Validate GitLab CI Templates
+    name: Validate GitLab CI Templates
     runs-on: ubuntu-latest
     env:
+      GITLAB_REPO: bluebit2/ghaction-gitlab-template-linter  # 🔁 Replace with your GitLab repo path
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔎 Validate GitLab YAMLs via API
+      - name: 🔧 Install glab CLI
         run: |
-          echo "🔍 Validating GitLab CI/CD templates..."
-          find bit-blocks-starter/cicd-pipelines/gitlab -type f -name "*.yml" | while read -r file; do
-            echo -e "\033[1;36m🔍 Linting:\033[0m $file"
+          sudo apt update
+          sudo apt install -y glab
+          glab --version
 
-            # Format the raw content correctly for JSON POST
-            CONTENT=$(jq -Rs '.' < "$file")
-            PAYLOAD="{\"content\": $CONTENT}"
+      - name: 🔐 Configure glab authentication
+        run: |
+          mkdir -p ~/.config/glab-cli
+          cat <<EOF > ~/.config/glab-cli/config.yml
+          hosts:
+            gitlab.com:
+              token: $GITLAB_TOKEN
+          EOF
+      - name: 📅 Clone GitLab repo for CI template linting
+        run: |
 
-            RESPONSE=$(curl --fail --silent --show-error \
-              --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-              --header "Content-Type: application/json" \
-              --data "$PAYLOAD" \
-              https://gitlab.com/api/v4/ci/lint)
+          git clone https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GITLAB_REPO}.git gitlab-ci-lint
+          cd gitlab-ci-lint
 
-            STATUS=$(echo "$RESPONSE" | jq -r '.status')
-            if [ "$STATUS" = "valid" ]; then
-              echo -e "\033[1;32m✅ VALID\033[0m"
+          git config user.name "BitBlocks Lint Bot"
+          git config user.email "ci-lint@bitblocks.dev"
+
+      - name: 🔍 Lint GitLab CI templates
+        run: |
+          cd gitlab-ci-lint
+          for file in ../bit-blocks-starter/cicd-pipelines/gitlab/*.yml; do
+            filename=$(basename "$file")
+            branch="lint-${filename%%.*}-$(date +%s)"
+            echo "→ Testing $filename on branch $branch"
+
+            # Create test branch and overwrite CI
+            git checkout -b "$branch"
+            cp "$file" .gitlab-ci.yml
+            git add .gitlab-ci.yml
+            git commit -m "Lint: $filename"
+            git push origin "$branch"
+
+            # Authenticate and lint
+            echo "$GITLAB_TOKEN" | glab auth login --stdin
+            if glab ci lint; then
+              echo "✅ $filename passed"
             else
-              echo -e "\033[1;31m❌ INVALID\033[0m"
-              echo "$RESPONSE" | jq
+              echo "❌ $filename failed"
             fi
+
+          # Clean up test branch
+          git push origin --delete "$branch" || true
+          git checkout main || git checkout master
           done
+
+      - name: 🗑️ Clean up
+        run: |
+          echo "Cleaning up..."

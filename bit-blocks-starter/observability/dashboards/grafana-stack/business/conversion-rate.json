@@ -1,0 +1,120 @@
+{
+    "id": null,
+    "uid": "conversion_rate_dashboard",
+    "title": "Conversion Rate",
+    "tags": ["business","conversion"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 0,
+    "refresh": "1m",
+    "time": { "from": "now-30d", "to": "now" },
+    "templating": {
+      "list": [
+        {
+          "name": "channel",
+          "type": "query",
+          "label": "Channel",
+          "datasource": "Prometheus",
+          "query": "label_values(business_sessions_total, channel)",
+          "multi": true,
+          "includeAll": true,
+          "current": { "text": "All", "value": [".*"] }
+        },
+        {
+          "name": "campaign",
+          "type": "query",
+          "label": "Campaign",
+          "datasource": "Prometheus",
+          "query": "label_values(business_conversions_total{channel=~\"$channel\"}, campaign)",
+          "multi": true,
+          "includeAll": true,
+          "current": { "text": "All", "value": [".*"] }
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "type": "timeseries",
+        "title": "Conversion Rate Over Time",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(increase(business_conversions_total{channel=~\"$channel\",campaign=~\"$campaign\"}[1d])) / sum(increase(business_sessions_total{channel=~\"$channel\",campaign=~\"$campaign\"}[1d])) * 100",
+            "legendFormat": "Conv %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 2,
+        "type": "stat",
+        "title": "Today's Conversion Rate",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(increase(business_conversions_total{channel=~\"$channel\",campaign=~\"$campaign\"}[1d])) / sum(increase(business_sessions_total{channel=~\"$channel\",campaign=~\"$campaign\"}[1d])) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 3,
+        "type": "timeseries",
+        "title": "Conversion Volume",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 4, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(increase(business_conversions_total{channel=~\"$channel\",campaign=~\"$campaign\"}[1d]))",
+            "legendFormat": "Conversions",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "short" } }
+      },
+      {
+        "id": 4,
+        "type": "bargauge",
+        "title": "Conversion Rate by Channel",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum by(channel)(increase(business_conversions_total{campaign=~\"$campaign\"}[1d])) / sum by(channel)(increase(business_sessions_total{campaign=~\"$campaign\"}[1d])) * 100",
+            "legendFormat": "{{channel}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 5,
+        "type": "table",
+        "title": "Top Campaigns by Conversions",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "topk(10, sum by(campaign)(increase(business_conversions_total{channel=~\"$channel\"}[1d])))",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "include": ["campaign", "Value"],
+              "rename": { "Value": "conversions" }
+            }
+          }
+        ],
+        "options": { "showHeader": true }
+      }
+    ]
+  }
+  

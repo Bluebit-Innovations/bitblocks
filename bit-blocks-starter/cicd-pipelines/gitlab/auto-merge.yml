@@ -3,6 +3,12 @@ stages:
 
 auto_merge:
   stage: auto-merge
+  rules:
+    # Run on Merge Request pipelines only
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: on_success
+    # All other cases, don’t run
+    - when: never
   script:
     - |
       curl --request PUT \
@@ -10,7 +16,3 @@ auto_merge:
         "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/merge" \
         --form "merge_when_pipeline_succeeds=true" \
         --form "should_remove_source_branch=true"
-  only:
-    - merge_requests
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

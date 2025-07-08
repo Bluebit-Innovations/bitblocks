@@ -1,0 +1,158 @@
+{
+    "title": "Alert Summary & MTTR",
+    "uid": "alert-summary-mttr-bitblock",
+    "__inputs": [
+      {
+        "name": "DS_ALERTS",
+        "label": "Alerts DataSource",
+        "description": "Select your Prometheus datasource",
+        "type": "datasource",
+        "pluginId": "prometheus"
+      }
+    ],
+    "panels": [
+      {
+        "id": 1,
+        "type": "stat",
+        "title": "Total Alerts",
+        "gridPos": { "x": 0,  "y": 0, "w": 6, "h": 4 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "sum(alerts_total)", "legendFormat": "Total" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "short" } },
+        "options": { "reduceOptions": { "calcs": ["last"] } }
+      },
+      {
+        "id": 2,
+        "type": "piechart",
+        "title": "Open vs Closed Alerts",
+        "gridPos": { "x": 6,  "y": 0, "w": 6, "h": 4 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "Open",   "expr": "sum(alerts_total{state=\"open\"})",   "legendFormat": "Open" },
+          { "refId": "Closed", "expr": "sum(alerts_total{state=\"closed\"})", "legendFormat": "Closed" }
+        ]
+      },
+      {
+        "id": 3,
+        "type": "gauge",
+        "title": "% Alerts Resolved within SLA",
+        "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(increase(alerts_resolved_total[1h])) / sum(increase(alerts_total[1h])) * 100",
+            "legendFormat": "Within SLA"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } },
+        "options": { "reduceOptions": { "calcs": ["last"] } }
+      },
+      {
+        "id": 4,
+        "type": "stat",
+        "title": "Mean Time to Detect (MTTD)",
+        "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "avg(alerts_mttd_seconds)", "legendFormat": "MTTD" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "s" } },
+        "options": { "reduceOptions": { "calcs": ["last"] } }
+      },
+      {
+        "id": 5,
+        "type": "stat",
+        "title": "Mean Time to Acknowledge (MTTA)",
+        "gridPos": { "x": 0,  "y": 4, "w": 6, "h": 4 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "avg(alerts_mtta_seconds)", "legendFormat": "MTTA" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "s" } },
+        "options": { "reduceOptions": { "calcs": ["last"] } }
+      },
+      {
+        "id": 6,
+        "type": "stat",
+        "title": "Mean Time to Resolve (MTTR)",
+        "gridPos": { "x": 6,  "y": 4, "w": 6, "h": 4 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "avg(alerts_mttr_seconds)", "legendFormat": "MTTR" }
+        ],
+        "fieldConfig": { "defaults": { "unit": "s" } },
+        "options": { "reduceOptions": { "calcs": ["last"] } }
+      },
+      {
+        "id": 7,
+        "type": "piechart",
+        "title": "Alerts by Severity",
+        "gridPos": { "x": 12, "y": 4, "w": 6, "h": 4 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "count by (severity)(alerts_total)", "legendFormat": "Severity" }
+        ]
+      },
+      {
+        "id": 8,
+        "type": "table",
+        "title": "Alerts by Service",
+        "gridPos": { "x": 18, "y": 4, "w": 6, "h": 4 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "topk(10, sum by (service)(increase(alerts_total[5m])))" }
+        ],
+        "options": { "showHeader": true }
+      },
+      {
+        "id": 9,
+        "type": "heatmap",
+        "title": "Alert Hotspots",
+        "gridPos": { "x": 0,  "y": 8, "w": 12, "h": 6 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "increase(alerts_total[1h])" }
+        ]
+      },
+      {
+        "id": 10,
+        "type": "timeseries",
+        "title": "Error Budget Burn-Down",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "error_budget_remaining" }
+        ]
+      },
+      {
+        "id": 11,
+        "type": "table",
+        "title": "Latest Incidents",
+        "gridPos": { "x": 0,  "y": 14, "w": 12, "h": 8 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "alerts_latest_incidents" }
+        ],
+        "options": { "showHeader": true }
+      },
+      {
+        "id": 12,
+        "type": "table",
+        "title": "Top 5 Slowest Resolutions",
+        "gridPos": { "x": 12, "y": 14, "w": 12, "h": 8 },
+        "datasource": "$DS_ALERTS",
+        "targets": [
+          { "refId": "A", "expr": "topk(5, alerts_mttr_seconds)" }
+        ],
+        "options": { "showHeader": true }
+      }
+    ],
+    "time": { "from": "now-6h", "to": "now" },
+    "schemaVersion": 32,
+    "version": 1,
+    "tags": ["bitblock","alerts","mttr"]
+  }
+  

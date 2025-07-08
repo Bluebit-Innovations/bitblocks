@@ -1,0 +1,178 @@
+{
+  "id": null,
+  "uid": "container_insights",
+  "title": "Container Insights Dashboard",
+  "tags": ["kubernetes","containers","prometheus","insights"],
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 0,
+  "refresh": "10s",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "namespace",
+        "type": "query",
+        "label": "Namespace",
+        "datasource": "Prometheus",
+        "query": "label_values(kube_pod_container_status_restarts_total, namespace)",
+        "multi": true,
+        "includeAll": true,
+        "current": { "text": "All", "value": [".*"] }
+      },
+      {
+        "name": "pod",
+        "type": "query",
+        "label": "Pod",
+        "datasource": "Prometheus",
+        "query": "label_values(kube_pod_container_status_restarts_total{namespace=~\"$namespace\"}, pod)",
+        "multi": true,
+        "includeAll": true,
+        "current": { "text": "All", "value": [".*"] }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Restart Counts",
+      "type": "table",
+      "datasource": "Prometheus",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "kube_pod_container_status_restarts_total{namespace=~\"$namespace\",pod=~\"$pod\"}",
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "include": ["namespace", "pod", "container", "Value"],
+            "rename": { "Value": "count" }
+          }
+        }
+      ],
+      "options": { "showHeader": true }
+    },
+    {
+      "id": 2,
+      "title": "OOM Kills",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\",namespace=~\"$namespace\",pod=~\"$pod\"}[5m])",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "ops" },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "title": "CPU Throttling Ratio",
+      "type": "gauge",
+      "datasource": "Prometheus",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum by(pod)(rate(container_cpu_cfs_throttled_periods_total{namespace=~\"$namespace\",pod=~\"$pod\"}[5m])) / sum by(pod)(rate(container_cpu_cfs_periods_total{namespace=~\"$namespace\",pod=~\"$pod\"}[5m])) * 100",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 80, "color": "red" }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "title": "Service Uptime",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "time() - kube_pod_start_time_seconds{namespace=~\"$namespace\",pod=~\"$pod\"}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "title": "Dependency Status",
+      "type": "table",
+      "datasource": "Prometheus",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "up{namespace=~\"$namespace\"}",
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "include": ["namespace", "instance", "job", "Value"],
+            "rename": { "Value": "status" }
+          }
+        }
+      ],
+      "options": { "showHeader": true }
+    },
+    {
+      "id": 6,
+      "title": "Throttling Events",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(container_cpu_cfs_throttled_periods_total{namespace=~\"$namespace\",pod=~\"$pod\"}[5m])",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" } }
+    },
+    {
+      "id": 7,
+      "title": "Active Connections",
+      "type": "gauge",
+      "datasource": "Prometheus",
+      "gridPos": { "x": 0, "y": 22, "w": 24, "h": 6 },
+      "targets": [
+        {
+          "expr": "sum by(pod)(container_network_tcp_connections{namespace=~\"$namespace\",pod=~\"$pod\",state=\"established\"})",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": []
+      }
+    }
+  ]
+}

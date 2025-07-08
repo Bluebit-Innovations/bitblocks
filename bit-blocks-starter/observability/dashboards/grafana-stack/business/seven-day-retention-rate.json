@@ -1,0 +1,108 @@
+{
+    "id": null,
+    "uid": "retention7d_dashboard",
+    "title": "7-Day Retention Rate",
+    "tags": ["business","retention"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 0,
+    "refresh": "1m",
+    "time": { "from": "now-30d", "to": "now" },
+    "templating": {
+      "list": [
+        {
+          "name": "region",
+          "type": "query",
+          "label": "Region",
+          "datasource": "Prometheus",
+          "query": "label_values(business_new_users_total, region)",
+          "multi": true,
+          "includeAll": true,
+          "current": { "text": "All", "value": [".*"] }
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "type": "timeseries",
+        "title": "7-Day Retention Rate",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(increase(business_retained_users_7d_total{region=~\"$region\"}[1d])) / sum(increase(business_new_users_total{region=~\"$region\"}[1d])) * 100",
+            "legendFormat": "7-Day Retention %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 2,
+        "type": "stat",
+        "title": "Today's Retention %",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(increase(business_retained_users_7d_total{region=~\"$region\"}[1d])) / sum(increase(business_new_users_total{region=~\"$region\"}[1d])) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 3,
+        "type": "heatmap",
+        "title": "Cohort Retention Heatmap",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum by(cohort_day, days_since_registration)(increase(business_retention_total{region=~\"$region\"}[1d]))",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "type": "bargauge",
+        "title": "Retention by Region",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 16, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum by(region)(increase(business_retained_users_7d_total[1d])) / sum by(region)(increase(business_new_users_total[1d])) * 100",
+            "legendFormat": "{{region}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 5,
+        "type": "table",
+        "title": "Top Cohorts by Size",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 16, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "topk(10, sum by(cohort_day)(increase(business_new_users_total{region=~\"$region\"}[1d])))",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "include": ["cohort_day", "Value"],
+              "rename": { "Value": "new_users" }
+            }
+          }
+        ],
+        "options": { "showHeader": true }
+      }
+    ]
+  }
+  

@@ -1,0 +1,58 @@
+{
+    "id": null,
+    "uid": "external_api_health",
+    "title": "External API Health",
+    "tags": ["external","api","health"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 0,
+    "refresh": "1m",
+    "time": { "from": "now-6h", "to": "now" },
+    "templating": {
+      "list": [
+        {
+          "name": "api_service",
+          "type": "query",
+          "label": "API Service",
+          "datasource": "Prometheus",
+          "query": "label_values(external_api_requests_total, service)",
+          "multi": true,
+          "includeAll": true,
+          "current": { "text": "All", "value": [".*"] }
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "type": "timeseries",
+        "title": "3rd-Party Success Rate %",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(external_api_requests_total{service=~\"$api_service\",status=~\"2..\"}[5m])) / sum(rate(external_api_requests_total{service=~\"$api_service\"}[5m])) * 100",
+            "legendFormat": "Success %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "percent" } }
+      },
+      {
+        "id": 2,
+        "type": "timeseries",
+        "title": "External API Latency P95",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(external_api_request_duration_seconds_bucket{service=~\"$api_service\"}[5m])) by (le))",
+            "legendFormat": "Latency 95th",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": { "defaults": { "unit": "s" } }
+      }
+    ]
+  }
+  

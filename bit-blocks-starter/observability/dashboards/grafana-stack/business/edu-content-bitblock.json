@@ -1,0 +1,50 @@
+{
+    "id": null,
+    "uid": "edu-content-bitblock",
+    "title": "Educational Content Overview (BitBlock)",
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "1m",
+    "style": "dark",
+    "editable": true,
+    "gnetId": null,
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Daily Active Learners",
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+        "datasource": "${DS_TESTDATA}",
+        "targets": [ { "refId": "A", "scenarioId": "random-walk", "seriesCount": 1 } ]
+      },
+      {
+        "type": "stat",
+        "title": "Content Completion Rate",
+        "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+        "datasource": "${DS_TESTDATA}",
+        "targets": [ { "refId": "A", "scenarioId": "timeseries-stats", "seriesCount": 1 } ]
+      },
+      {
+        "type": "timeseries",
+        "title": "Average Time Spent per Module",
+        "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+        "datasource": "${DS_TESTDATA}",
+        "targets": [ { "refId": "A", "scenarioId": "random-walk", "seriesCount": 3 } ]
+      },
+      {
+        "type": "table",
+        "title": "Top 10 Most-Viewed Lessons",
+        "gridPos": { "x": 0, "y": 10, "w": 6, "h": 6 },
+        "datasource": "${DS_TESTDATA}",
+        "targets": [ { "refId": "A", "scenarioId": "table" } ]
+      },
+      {
+        "type": "table",
+        "title": "API Error Rate",
+        "gridPos": { "x": 6, "y": 10, "w": 6, "h": 6 },
+        "datasource": "${DS_TESTDATA}",
+        "targets": [ { "refId": "A", "scenarioId": "table" } ]
+      }
+    ]
+  }
+  

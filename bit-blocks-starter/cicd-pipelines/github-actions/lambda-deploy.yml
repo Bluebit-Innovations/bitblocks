@@ -26,6 +26,7 @@ jobs:
 
     - name: ⚡ Update Lambda function code
       run: |
+        set -euo pipefail
         aws lambda update-function-code \
           --function-name my-lambda-fn \
           --zip-file fileb://function.zip

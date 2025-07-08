@@ -1,0 +1,140 @@
+{
+    "id": null,
+    "uid": "tracing_summary",
+    "title": "Tracing Summary",
+    "tags": ["tracing","tempo","jaeger"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 0,
+    "refresh": "10s",
+    "time": { "from": "now-6h", "to": "now" },
+    "templating": {
+      "list": [
+        {
+          "type": "datasource",
+          "name": "tracing_ds",
+          "label": "Tracing Data Source",
+          "pluginId": "tempo",
+          "query": "tempo"
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "type": "table",
+        "title": "Top 10 Slowest Services",
+        "datasource": "$tracing_ds",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "topk(10, histogram_quantile(0.95, sum(rate(tempo_span_duration_seconds_bucket[5m])) by (le, service)))",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "include": ["service", "Value"],
+              "rename": { "Value": "duration_95th_s" }
+            }
+          }
+        ],
+        "options": { "showHeader": true }
+      },
+      {
+        "id": 2,
+        "type": "timeseries",
+        "title": "Span Count/sec",
+        "datasource": "$tracing_ds",
+        "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(tempo_spans_received_total[1m]))",
+            "legendFormat": "spans/sec",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "type": "flamegraph",
+        "title": "End-to-end Latency Flamegraph",
+        "datasource": "$tracing_ds",
+        "gridPos": { "x": 0, "y": 8, "w": 24, "h": 10 },
+        "targets": [
+          {
+            "expr": "sum(rate(tempo_span_duration_seconds_bucket[5m])) by (le, service)",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "type": "timeseries",
+        "title": "Spans per Trace",
+        "datasource": "$tracing_ds",
+        "gridPos": { "x": 0, "y": 18, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum by(trace_id)(increase(tempo_spans_received_total[5m]))",
+            "legendFormat": "{{trace_id}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "type": "timeseries",
+        "title": "Trace Latency",
+        "datasource": "$tracing_ds",
+        "gridPos": { "x": 12, "y": 18, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(tempo_span_duration_seconds_bucket[5m])) by (le, trace_id))",
+            "legendFormat": "{{trace_id}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "type": "timeseries",
+        "title": "Trace Error Count",
+        "datasource": "$tracing_ds",
+        "gridPos": { "x": 0, "y": 24, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(rate(tempo_spans_received_total{result=\"error\"}[5m])) by (trace_id)",
+            "legendFormat": "{{trace_id}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "type": "table",
+        "title": "Slowest Endpoints",
+        "datasource": "$tracing_ds",
+        "gridPos": { "x": 12, "y": 24, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "topk(10, histogram_quantile(0.95, sum(rate(tempo_span_duration_seconds_bucket[5m])) by (le, service, endpoint)))",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "include": ["service", "endpoint", "Value"],
+              "rename": { "Value": "latency_95th_s" }
+            }
+          }
+        ],
+        "options": { "showHeader": true }
+      }
+    ]
+  }
+  

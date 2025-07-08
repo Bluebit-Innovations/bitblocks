@@ -1,0 +1,92 @@
+name: CI – Dashboards QA
+
+on:
+  push:
+    paths:
+      - 'dashboards/**/*.json'
+  pull_request:
+    paths:
+      - 'dashboards/**/*.json'
+
+jobs:
+  lint:
+    name: Lint dashboards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Grafana Dashboard Linter
+        run: go install github.com/grafana/dashboard-linter@latest
+        # Grafana Dashboard Linter checks for common mistakes :contentReference[oaicite:0]{index=0}
+
+      - name: Run linter
+        run: dashboard-linter lint dashboards/*.json
+
+  validate-schema:
+    name: Validate JSON schema
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install AJV CLI
+        uses: actions/setup-node@v3
+      - run: npm install -g ajv-cli
+
+      - name: Download Grafana Dashboard JSON schema
+        run: wget -O grafana-dashboard-schema.json \
+          https://raw.githubusercontent.com/grafana/grafana/main/public/app/plugins/core/dashboards/dashboard.schema.json
+
+      - name: Validate against schema
+        run: |
+          for f in dashboards/*.json; do
+            ajv validate -s grafana-dashboard-schema.json -d "$f" || exit 1
+          done
+        # Ensures each dashboard matches Grafana’s JSON model :contentReference[oaicite:1]{index=1}
+
+  import-test:
+    name: Smoke-test import
+    runs-on: ubuntu-latest
+    needs: validate-schema
+    services:
+      grafana:
+        image: grafana/grafana:latest
+        ports:
+          - 3000:3000
+        options: >-
+          --health-cmd "wget -q -O- http://localhost:3000/api/health"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+
+    env:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Wait for Grafana to be healthy
+        run: |
+          until curl -s http://localhost:3000/api/health | grep "DB OK"; do
+            echo "Waiting for Grafana…"; sleep 5;
+          done
+
+      - name: Import dashboards via HTTP API
+        run: |
+          for dash in dashboards/*.json; do
+            echo "Importing $dash…"
+            payload=$(jq -c --argfile d "$dash" '{dashboard:$d,overwrite:true}')
+            resp=$(curl -s -X POST \
+              -H "Content-Type: application/json" \
+              -u $GF_SECURITY_ADMIN_USER:$GF_SECURITY_ADMIN_PASSWORD \
+              http://localhost:3000/api/dashboards/db \
+              -d "$payload")
+            echo "$resp" | jq
+          done
+
+      - name: Verify dashboards exist
+        run: |
+          curl -s -u $GF_SECURITY_ADMIN_USER:$GF_SECURITY_ADMIN_PASSWORD \
+            http://localhost:3000/api/search?query= \
+            | jq '.[].title' \
+            || { echo "No dashboards found!"; exit 1; }
+
