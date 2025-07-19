@@ -1,0 +1,36 @@
+# external_api_health_metrics.prom
+
+# Total external API requests by service and status
+# HELP external_api_requests_total Total requests to external APIs.
+# TYPE external_api_requests_total counter
+external_api_requests_total{service="svcA",status="200"} 1200
+external_api_requests_total{service="svcA",status="500"}   30
+external_api_requests_total{service="svcA",status="404"}   20
+
+external_api_requests_total{service="svcB",status="200"}  900
+external_api_requests_total{service="svcB",status="503"}   15
+external_api_requests_total{service="svcB",status="400"}   10
+
+# Histogram of external API request durations (seconds)
+# HELP external_api_request_duration_seconds_bucket External API request duration buckets.
+# TYPE external_api_request_duration_seconds_bucket histogram
+external_api_request_duration_seconds_bucket{le="0.05",service="svcA"}   400
+external_api_request_duration_seconds_bucket{le="0.1", service="svcA"}   800
+external_api_request_duration_seconds_bucket{le="0.3", service="svcA"}   1100
+external_api_request_duration_seconds_bucket{le="1",   service="svcA"}   1180
+external_api_request_duration_seconds_bucket{le="+Inf",service="svcA"}   1250
+
+external_api_request_duration_seconds_bucket{le="0.05",service="svcB"}   300
+external_api_request_duration_seconds_bucket{le="0.1", service="svcB"}   700
+external_api_request_duration_seconds_bucket{le="0.3", service="svcB"}   850
+external_api_request_duration_seconds_bucket{le="1",   service="svcB"}   900
+external_api_request_duration_seconds_bucket{le="+Inf",service="svcB"}   920
+
+# Count and sum for the histogram
+# TYPE external_api_request_duration_seconds_count counter
+external_api_request_duration_seconds_count{service="svcA"} 1250
+external_api_request_duration_seconds_count{service="svcB"}  920
+
+# TYPE external_api_request_duration_seconds_sum counter
+external_api_request_duration_seconds_sum{service="svcA"}  95.4
+external_api_request_duration_seconds_sum{service="svcB"}  80.7

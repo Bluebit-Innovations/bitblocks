@@ -1,0 +1,19 @@
+
+# File: dau_metrics.prom
+
+# HELP business_active_users_total Total number of active users per day.
+# TYPE business_active_users_total counter
+business_active_users_total{region="us-east",segment="free"}    5200
+business_active_users_total{region="us-east",segment="premium"} 2300
+business_active_users_total{region="us-west",segment="free"}    3100
+business_active_users_total{region="us-west",segment="premium"} 1400
+business_active_users_total{region="eu-central",segment="free"}  2700
+business_active_users_total{region="eu-central",segment="premium"}  1100
+
+# (Optional) simulate a little growth throughout the day by adding higher counters later
+business_active_users_total{region="us-east",segment="free"}    5500
+business_active_users_total{region="us-east",segment="premium"} 2500
+business_active_users_total{region="us-west",segment="free"}    3300
+business_active_users_total{region="us-west",segment="premium"} 1550
+business_active_users_total{region="eu-central",segment="free"}  2900
+business_active_users_total{region="eu-central",segment="premium"}  1250

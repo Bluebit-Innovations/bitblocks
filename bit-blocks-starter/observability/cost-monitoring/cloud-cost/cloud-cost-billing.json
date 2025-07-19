@@ -1,0 +1,118 @@
+{
+  "id": null,
+  "uid": "cloud-cost-billing",
+  "title": "Cloud Cost & Billing Analytics",
+  "tags": ["cost", "cloud", "billing", "analytics"],
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "1h",
+  "style": "dark",
+  "editable": true,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Cloud Spend (This Month)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum(cloud_cost_total{period='month'})",
+          "legendFormat": "Total"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currency", "decimals": 2 } }
+    },
+    {
+      "type": "stat",
+      "title": "Total Cloud Spend (This Week)",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum(cloud_cost_total{period='week'})",
+          "legendFormat": "Total"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currency", "decimals": 2 } }
+    },
+    {
+      "type": "bar",
+      "title": "Cloud Spend by Provider",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum by(provider) (cloud_cost_total{period='month'})",
+          "legendFormat": "{{provider}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currency", "decimals": 2 } }
+    },
+    {
+      "type": "table",
+      "title": "Top 5 Services by Cost",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 7 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "topk(5, sum by(service) (cloud_cost_service_total{period='month'}))",
+          "legendFormat": "{{service}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currency", "decimals": 2 } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Cost Trend (Last 30 Days)",
+      "gridPos": { "x": 0, "y": 17, "w": 12, "h": 6 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum by(date) (cloud_cost_daily{provider=~'.*'})",
+          "legendFormat": "Daily Spend"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currency", "decimals": 2 } }
+    },
+    {
+      "type": "stat",
+      "title": "Cost Forecast (Next 30 Days)",
+      "gridPos": { "x": 0, "y": 23, "w": 6, "h": 4 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "predict_linear(cloud_cost_daily[30d], 30*24*60*60)",
+          "legendFormat": "Forecast"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currency", "decimals": 2 } }
+    },
+    {
+      "type": "stat",
+      "title": "Budget/Threshold Alert",
+      "gridPos": { "x": 6, "y": 23, "w": 6, "h": 4 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "max_over_time(cloud_cost_total{period='month'}[30d]) > on() budget_limit",
+          "legendFormat": "Over Budget"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" } }
+    },
+    {
+      "type": "stat",
+      "title": "Anomaly Detector",
+      "gridPos": { "x": 0, "y": 27, "w": 12, "h": 4 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum_over_time(cloud_cost_anomaly[1d])",
+          "legendFormat": "Detected Anomalies"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" } }
+    }
+  ]
+}

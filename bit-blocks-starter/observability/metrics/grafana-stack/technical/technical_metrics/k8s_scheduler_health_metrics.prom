@@ -1,0 +1,33 @@
+# k8s_scheduler_health_metrics.prom
+
+# Histogram of pod scheduling latency (seconds)
+# HELP kube_pod_schedulable_duration_seconds_bucket Buckets of pod scheduling latency
+# TYPE kube_pod_schedulable_duration_seconds_bucket histogram
+kube_pod_schedulable_duration_seconds_bucket{le="0.01",namespace="default"}  50
+kube_pod_schedulable_duration_seconds_bucket{le="0.1",namespace="default"}   80
+kube_pod_schedulable_duration_seconds_bucket{le="1",namespace="default"}     90
+kube_pod_schedulable_duration_seconds_bucket{le="+Inf",namespace="default"} 100
+
+kube_pod_schedulable_duration_seconds_bucket{le="0.01",namespace="kube-system"}  30
+kube_pod_schedulable_duration_seconds_bucket{le="0.1",namespace="kube-system"}   60
+kube_pod_schedulable_duration_seconds_bucket{le="1",namespace="kube-system"}     75
+kube_pod_schedulable_duration_seconds_bucket{le="+Inf",namespace="kube-system"}  80
+
+# (Optional) count & sum for histogram
+# TYPE kube_pod_schedulable_duration_seconds_count counter
+kube_pod_schedulable_duration_seconds_count{namespace="default"} 100
+kube_pod_schedulable_duration_seconds_count{namespace="kube-system"} 80
+# TYPE kube_pod_schedulable_duration_seconds_sum counter
+kube_pod_schedulable_duration_seconds_sum{namespace="default"} 2.5
+kube_pod_schedulable_duration_seconds_sum{namespace="kube-system"} 1.8
+
+# Pod evictions (terminated reason = Evicted)
+# HELP kube_pod_container_status_terminated_reason Total pod terminations by reason
+# TYPE kube_pod_container_status_terminated_reason counter
+kube_pod_container_status_terminated_reason{reason="Evicted",namespace="default",pod="web-1",node="node1"} 5
+kube_pod_container_status_terminated_reason{reason="Evicted",namespace="default",pod="web-2",node="node1"} 2
+kube_pod_container_status_terminated_reason{reason="Evicted",namespace="kube-system",pod="dns-1",node="node2"} 1
+
+# Other terminations (ignored by our queries)
+kube_pod_container_status_terminated_reason{reason="OOMKilled",namespace="default",pod="web-1",node="node1"} 1
+

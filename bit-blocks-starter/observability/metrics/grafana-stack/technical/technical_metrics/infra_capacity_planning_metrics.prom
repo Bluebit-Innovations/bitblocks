@@ -1,0 +1,77 @@
+# Sample Prometheus metrics for Infrastructure Capacity Planning
+
+# CPU usage per container (in seconds)
+# TYPE container_cpu_usage_seconds_total counter
+container_cpu_usage_seconds_total{pod="pod1", instance="node1", cluster="cluster-A"}  15234.5
+container_cpu_usage_seconds_total{pod="pod2", instance="node1", cluster="cluster-A"}  18345.2
+container_cpu_usage_seconds_total{pod="pod3", instance="node2", cluster="cluster-A"}  11232.8
+container_cpu_usage_seconds_total{pod="pod4", instance="node2", cluster="cluster-A"}  20456.1
+
+# Memory working set vs total machine memory (bytes)
+# TYPE container_memory_working_set_bytes gauge
+container_memory_working_set_bytes{pod="pod1", instance="node1", cluster="cluster-A"}  2147483648
+container_memory_working_set_bytes{pod="pod2", instance="node1", cluster="cluster-A"}  1073741824
+container_memory_working_set_bytes{pod="pod3", instance="node2", cluster="cluster-A"}  3221225472
+container_memory_working_set_bytes{pod="pod4", instance="node2", cluster="cluster-A"}  536870912
+
+# TYPE machine_memory_bytes gauge
+machine_memory_bytes{instance="node1", cluster="cluster-A"} 34359738368
+machine_memory_bytes{instance="node2", cluster="cluster-A"} 34359738368
+
+# Filesystem usage (bytes)
+# TYPE node_filesystem_size_bytes gauge
+node_filesystem_size_bytes{instance="node1", fstype="ext4", cluster="cluster-A"} 107374182400
+node_filesystem_size_bytes{instance="node2", fstype="ext4", cluster="cluster-A"} 107374182400
+
+# TYPE node_filesystem_free_bytes gauge
+node_filesystem_free_bytes{instance="node1", fstype="ext4", cluster="cluster-A"} 53687091200
+node_filesystem_free_bytes{instance="node2", fstype="ext4", cluster="cluster-A"} 64424509440
+
+# Disk I/O operations
+# TYPE node_disk_reads_completed_total counter
+node_disk_reads_completed_total{instance="node1", cluster="cluster-A"}  123456
+node_disk_reads_completed_total{instance="node2", cluster="cluster-A"}  234567
+
+# TYPE node_disk_writes_completed_total counter
+node_disk_writes_completed_total{instance="node1", cluster="cluster-A"}  654321
+node_disk_writes_completed_total{instance="node2", cluster="cluster-A"}  543210
+
+# Network throughput (bytes)
+# TYPE node_network_receive_bytes_total counter
+node_network_receive_bytes_total{instance="node1", cluster="cluster-A"}  987654321
+node_network_receive_bytes_total{instance="node2", cluster="cluster-A"}  876543219
+
+# TYPE node_network_transmit_bytes_total counter
+node_network_transmit_bytes_total{instance="node1", cluster="cluster-A"}  123456789
+node_network_transmit_bytes_total{instance="node2", cluster="cluster-A"}  234567890
+
+# Pod CPU requests vs actual usage
+# TYPE kube_pod_container_resource_requests_cpu_cores gauge
+kube_pod_container_resource_requests_cpu_cores{pod="pod1", cluster="cluster-A"}  0.50
+kube_pod_container_resource_requests_cpu_cores{pod="pod2", cluster="cluster-A"}  0.75
+kube_pod_container_resource_requests_cpu_cores{pod="pod3", cluster="cluster-A"}  0.25
+kube_pod_container_resource_requests_cpu_cores{pod="pod4", cluster="cluster-A"}  1.00
+
+# Node info and autoscaler events
+# TYPE kube_node_info gauge
+kube_node_info{node="node1", cluster="cluster-A"} 1
+kube_node_info{node="node2", cluster="cluster-A"} 1
+
+# TYPE cluster_autoscaler_node_scale_up_events_total counter
+cluster_autoscaler_node_scale_up_events_total{cluster="cluster-A"} 3
+
+# Pod scheduling density
+# TYPE kube_pod_info gauge
+kube_pod_info{pod="pod1", node="node1", cluster="cluster-A"} 1
+kube_pod_info{pod="pod2", node="node1", cluster="cluster-A"} 1
+kube_pod_info{pod="pod3", node="node2", cluster="cluster-A"} 1
+kube_pod_info{pod="pod4", node="node2", cluster="cluster-A"} 1
+
+# Node readiness
+# TYPE kube_node_status_condition gauge
+kube_node_status_condition{node="node1", condition="Ready", status="true", cluster="cluster-A"} 1
+kube_node_status_condition{node="node2", condition="Ready", status="true", cluster="cluster-A"} 1
+
+# Cost per vCPU (USD)
+# TYPE cloud_cost_per_vcpu_usd gauge
+cloud_cost_per_vcpu_usd{cluster="cluster-A"} 0.05

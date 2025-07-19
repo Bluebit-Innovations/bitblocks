@@ -1,0 +1,43 @@
+# Educational Content Metrics
+
+# 1. Daily Active Learners (gauge)
+edu_daily_active_learners 125
+
+# 2. Content Completion Rate (gauge: fraction 0–1)
+edu_content_completion_rate 0.72
+
+# 3. Average Time Spent per Module (gauge in seconds)
+edu_avg_time_spent_seconds{module="Intro to Kubernetes"} 420
+edu_avg_time_spent_seconds{module="Terraform Basics"}    585
+edu_avg_time_spent_seconds{module="Prometheus 101"}      350
+
+# 4. Lesson View Counts (counter)
+edu_lesson_view_total{lesson="Intro to Kubernetes"}  3421
+edu_lesson_view_total{lesson="Terraform Basics"}     2754
+edu_lesson_view_total{lesson="Prometheus 101"}       1987
+edu_lesson_view_total{lesson="Grafana Dashboards"}   1621
+edu_lesson_view_total{lesson="Go Concurrency"}       1450
+edu_lesson_view_total{lesson="Rust Ownership"}       1310
+edu_lesson_view_total{lesson="AWS IAM"}              1278
+edu_lesson_view_total{lesson="Azure DevOps"}         1189
+edu_lesson_view_total{lesson="Docker Deep Dive"}     1102
+edu_lesson_view_total{lesson="CI/CD Pipelines"}      1023
+
+# 5. API Request Totals and Errors (counter)
+#    Used to compute error rate: rate(edu_api_request_errors_total / edu_api_request_total)
+edu_api_request_total{endpoint="/content/video"}  15000
+edu_api_request_total{endpoint="/content/quiz"}   12000
+edu_api_request_errors_total{endpoint="/content/video",code="500"}  37
+edu_api_request_errors_total{endpoint="/content/quiz", code="503"}  22
+
+# 6. CDN Latency (histogram)
+edu_cdn_response_time_seconds_bucket{le="0.1"}  15000
+edu_cdn_response_time_seconds_bucket{le="0.3"}  23000
+edu_cdn_response_time_seconds_bucket{le="0.5"}  26000
+edu_cdn_response_time_seconds_bucket{le="1"}    28000
+edu_cdn_response_time_seconds_bucket{le="+Inf"} 30000
+edu_cdn_response_time_seconds_sum   3400
+edu_cdn_response_time_seconds_count 30000
+
+# 7. Cache Hit Ratio (gauge fraction 0–1)
+edu_cache_hit_ratio{cache="content_cache"} 0.87

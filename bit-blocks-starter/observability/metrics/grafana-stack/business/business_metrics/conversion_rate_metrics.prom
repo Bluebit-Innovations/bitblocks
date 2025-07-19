@@ -1,0 +1,27 @@
+# conversion_rate_metrics.prom
+
+# HELP business_sessions_total Total number of user sessions per day.
+# TYPE business_sessions_total counter
+business_sessions_total{channel="organic",campaign="spring_sale"} 12000
+business_sessions_total{channel="organic",campaign="summer_sale"} 8000
+business_sessions_total{channel="paid",   campaign="spring_sale"} 15000
+business_sessions_total{channel="paid",   campaign="summer_sale"} 10000
+
+# HELP business_conversions_total Total number of conversion events per day.
+# TYPE business_conversions_total counter
+business_conversions_total{channel="organic",campaign="spring_sale"} 600
+business_conversions_total{channel="organic",campaign="summer_sale"} 400
+business_conversions_total{channel="paid",   campaign="spring_sale"} 1200
+business_conversions_total{channel="paid",   campaign="summer_sale"} 800
+
+# Simulate next scrape (to give non-zero increase())
+business_sessions_total{channel="organic",campaign="spring_sale"} 12500
+business_sessions_total{channel="organic",campaign="summer_sale"} 9000
+business_sessions_total{channel="paid",   campaign="spring_sale"} 15500
+business_sessions_total{channel="paid",   campaign="summer_sale"} 11000
+
+business_conversions_total{channel="organic",campaign="spring_sale"} 650
+business_conversions_total{channel="organic",campaign="summer_sale"} 450
+business_conversions_total{channel="paid",   campaign="spring_sale"} 1300
+business_conversions_total{channel="paid",   campaign="summer_sale"} 900
+
