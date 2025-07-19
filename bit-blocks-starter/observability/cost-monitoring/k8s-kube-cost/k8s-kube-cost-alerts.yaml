@@ -1,0 +1,38 @@
+groups:
+  - name: kubecost-k8s-cost-alerts
+    rules:
+      - alert: K8sClusterMonthlySpendHigh
+        expr: sum(kubecost_cluster_cost_total) > 2000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "K8s cluster monthly spend high"
+          description: "The total K8s cluster spend this month is over $2,000. Investigate workloads and resource allocations."
+
+      - alert: K8sNamespaceOverspend
+        expr: sum(kubecost_namespace_cost_total) by (namespace) > 1000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "K8s namespace overspending"
+          description: "Namespace {{ $labels.namespace }} is spending over $1,000 this month. Review for cost optimization."
+
+      - alert: K8sCostPerCPUHigh
+        expr: sum(kubecost_cluster_cost_total) / sum(kubecost_cluster_cpu_usage_cores) > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "K8s cost per CPU too high"
+          description: "K8s cost per CPU usage is above $5. Check for resource over-provisioning or underutilization."
+
+      - alert: K8sCostAnomaly
+        expr: increase(kubecost_cluster_cost_total[1d]) > 1.2 * avg_over_time(increase(kubecost_cluster_cost_total[1d])[7d:1d])
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "K8s cost anomaly detected"
+          description: "Today's K8s spend is over 20% higher than the last 7-day daily average. Investigate recent changes."

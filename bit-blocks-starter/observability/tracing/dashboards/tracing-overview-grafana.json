@@ -1,0 +1,44 @@
+{
+  "id": null,
+  "uid": "tracing-overview-bitblock",
+  "title": "Tracing Overview (BitBlock)",
+  "tags": ["tracing", "tempo", "observability"],
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "1m",
+  "panels": [
+    {
+      "type": "trace",
+      "title": "Trace Search",
+      "datasource": "Tempo",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 10 },
+      "targets": [
+        {
+          "datasource": "Tempo",
+          "expr": ""
+        }
+      ],
+      "options": {
+        "defaultQuery": {
+          "serviceName": "",
+          "spanKind": "",
+          "minDuration": "",
+          "maxDuration": "",
+          "tags": []
+        }
+      }
+    },
+    {
+      "type": "table",
+      "title": "Top Services by Trace Count",
+      "datasource": "Tempo",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "topk(5, count_over_time({service_name=~\".+\"}[1h]))",
+          "legendFormat": "{{service_name}}"
+        }
+      ]
+    }
+  ]
+}

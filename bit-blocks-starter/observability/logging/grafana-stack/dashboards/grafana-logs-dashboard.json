@@ -1,0 +1,48 @@
+{
+  "id": null,
+  "uid": "bitblock-logs-dashboard",
+  "title": "BitBlock Logs Overview",
+  "tags": ["logs", "observability"],
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "logs",
+      "title": "All Application Logs",
+      "datasource": "${DS_LOKI}",
+      "targets": [
+        {
+          "expr": "{job=\"varlogs\"}",
+          "refId": "A"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 }
+    },
+    {
+      "type": "logs",
+      "title": "NGINX Logs",
+      "datasource": "${DS_LOKI}",
+      "targets": [
+        {
+          "expr": "{app=\"nginx\"}",
+          "refId": "B"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 }
+    },
+    {
+      "type": "logs",
+      "title": "Error Logs",
+      "datasource": "${DS_LOKI}",
+      "targets": [
+        {
+          "expr": "{level=\"error\"}",
+          "refId": "C"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 8 }
+    }
+  ]
+}
