@@ -67,7 +67,7 @@ scrape_configs:
       - targets: ['localhost:8000']
     fallback_scrape_protocol: 'PrometheusText0.0.4'
 
-  - job_name: 'fake-/market-perf-local'
+  - job_name: 'fake-market-perf-local'
     metrics_path: 'business/business_metrics/market_perf_local_metrics.prom'
     static_configs:
       - targets: ['localhost:8000']
