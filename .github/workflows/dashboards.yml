@@ -1,4 +1,4 @@
-name: CI – Dashboards QA
+name: CI Dashboards QA
 
 on:
   push:

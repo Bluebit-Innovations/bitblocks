@@ -1,0 +1,47 @@
+# container_insights_metrics.prom
+
+# Restart counts
+# HELP kube_pod_container_status_restarts_total Total container restarts.
+# TYPE kube_pod_container_status_restarts_total counter
+kube_pod_container_status_restarts_total{namespace="default",pod="web-1",container="app"} 3
+kube_pod_container_status_restarts_total{namespace="default",pod="web-2",container="app"} 1
+kube_pod_container_status_restarts_total{namespace="kube-system",pod="dns-1",container="dns"} 0
+
+# OOM kills
+# HELP kube_pod_container_status_last_terminated_reason Last termination reason count.
+# TYPE kube_pod_container_status_last_terminated_reason gauge
+kube_pod_container_status_last_terminated_reason{namespace="default",pod="web-1",container="app",reason="OOMKilled"} 5
+kube_pod_container_status_last_terminated_reason{namespace="default",pod="web-2",container="app",reason="OOMKilled"} 0
+
+# CPU throttling
+# HELP container_cpu_cfs_throttled_periods_total CFS throttled periods.
+# TYPE container_cpu_cfs_throttled_periods_total counter
+container_cpu_cfs_throttled_periods_total{namespace="default",pod="web-1",container="app"} 200
+container_cpu_cfs_throttled_periods_total{namespace="default",pod="web-2",container="app"} 50
+
+# CPU periods
+# HELP container_cpu_cfs_periods_total CFS periods.
+# TYPE container_cpu_cfs_periods_total counter
+container_cpu_cfs_periods_total{namespace="default",pod="web-1",container="app"} 10000
+container_cpu_cfs_periods_total{namespace="default",pod="web-2",container="app"} 10000
+
+# Pod start times
+# HELP kube_pod_start_time_seconds Pod start time in seconds since epoch.
+# TYPE kube_pod_start_time_seconds gauge
+kube_pod_start_time_seconds{namespace="default",pod="web-1"} 1698800000
+kube_pod_start_time_seconds{namespace="default",pod="web-2"} 1698800360
+
+# Dependency status (up)
+# HELP up Always 1 for up, 0 for down.
+# TYPE up gauge
+up{namespace="default",instance="web-1",job="app"} 1
+up{namespace="default",instance="web-2",job="app"} 0
+
+# Throttling events (same as throttled periods rate)
+# [Uses container_cpu_cfs_throttled_periods_total above]
+
+# Active TCP connections
+# HELP container_network_tcp_connections Number of TCP connections by state.
+# TYPE container_network_tcp_connections gauge
+container_network_tcp_connections{namespace="default",pod="web-1",state="established"} 120
+container_network_tcp_connections{namespace="default",pod="web-2",state="established"} 80

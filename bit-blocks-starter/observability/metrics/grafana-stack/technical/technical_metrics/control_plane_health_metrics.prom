@@ -1,0 +1,25 @@
+# control_plane_health_metrics.prom
+
+# API Server request totals by status code
+# HELP apiserver_request_total Total API server requests by response code.
+# TYPE apiserver_request_total counter
+apiserver_request_total{code="200",instance="apiserver-1"} 12000
+apiserver_request_total{code="500",instance="apiserver-1"}   120
+apiserver_request_total{code="503",instance="apiserver-1"}    30
+apiserver_request_total{code="404",instance="apiserver-1"}   100
+apiserver_request_total{code="200",instance="apiserver-2"} 15000
+apiserver_request_total{code="500",instance="apiserver-2"}   200
+apiserver_request_total{code="503",instance="apiserver-2"}    50
+apiserver_request_total{code="404",instance="apiserver-2"}    80
+
+# etcd leader change counts
+# HELP etcd_server_leader_changes_seen_total Total number of etcd leader changes observed.
+# TYPE etcd_server_leader_changes_seen_total counter
+etcd_server_leader_changes_seen_total{instance="etcd-1"} 2
+etcd_server_leader_changes_seen_total{instance="etcd-2"} 1
+
+# etcd cluster membership (has leader)
+# HELP etcd_server_has_leader Gauge indicating if this etcd instance has a leader (1 = yes, 0 = no).
+# TYPE etcd_server_has_leader gauge
+etcd_server_has_leader{instance="etcd-1"} 1
+etcd_server_has_leader{instance="etcd-2"} 1

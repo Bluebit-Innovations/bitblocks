@@ -1,0 +1,29 @@
+groups:
+  - name: cloud-cost-alerts
+    rules:
+      - alert: CloudMonthlyBudgetExceeded
+        expr: sum(cloud_cost_total) > 5000
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cloud spend above budget"
+          description: "Cloud spend this month has exceeded $5,000. Review your cloud resources and billing details."
+
+      - alert: CloudDailySpendSpike
+        expr: increase(cloud_cost_total[1d]) > 1.2 * avg_over_time(increase(cloud_cost_total[1d])[7d:1d])
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cloud daily spend anomaly"
+          description: "Today's cloud spend is over 20% higher than the 7-day daily average. Investigate recent deployments or spikes."
+
+      - alert: TopCloudServiceOverspend
+        expr: topk(1, sum(cloud_cost_total) by (service)) > 2000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Top cloud service overspending"
+          description: "The top cloud service ({{ $labels.service }}) is spending over $2,000 this month."

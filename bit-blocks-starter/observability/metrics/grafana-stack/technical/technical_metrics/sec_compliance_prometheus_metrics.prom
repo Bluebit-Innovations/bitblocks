@@ -1,0 +1,54 @@
+# HELP vulnerabilities_total Total number of vulnerabilities by severity
+# TYPE vulnerabilities_total gauge
+vulnerabilities_total{severity="critical"} 5
+vulnerabilities_total{severity="high"} 12
+vulnerabilities_total{severity="medium"} 30
+vulnerabilities_total{severity="low"} 100
+
+# HELP patch_compliance_percent Percentage of nodes with up-to-date patches
+# TYPE patch_compliance_percent gauge
+patch_compliance_percent 85
+
+# HELP auth_success_total Total successful authentication events
+# TYPE auth_success_total counter
+auth_success_total 10567
+
+# HELP auth_fail_total Total failed authentication events
+# TYPE auth_fail_total counter
+auth_fail_total 125
+
+# HELP role_changes_total Total privilege change events
+# TYPE role_changes_total counter
+role_changes_total 8
+
+# HELP net_conn_count Number of network connections by port
+# TYPE net_conn_count gauge
+net_conn_count{port="22"} 150
+net_conn_count{port="3389"} 5
+net_conn_count{port="8080"} 350
+
+# HELP tls_cert_expiry_days Days until TLS certificate expiry
+# TYPE tls_cert_expiry_days gauge
+tls_cert_expiry_days 14
+
+# HELP intrusion_alerts_total Number of intrusion/malware alerts per host
+# TYPE intrusion_alerts_total gauge
+intrusion_alerts_total{host="host1"} 2
+intrusion_alerts_total{host="host2"} 0
+intrusion_alerts_total{host="host3"} 5
+
+# HELP log_ingest_rate Log ingestion rate per second
+# TYPE log_ingest_rate gauge
+log_ingest_rate 250
+
+# HELP policy_violations_total Total number of policy violations
+# TYPE policy_violations_total gauge
+policy_violations_total 7
+
+# HELP mttd_seconds Mean time to detect in seconds
+# TYPE mttd_seconds gauge
+mttd_seconds 360
+
+# HELP mttr_seconds Mean time to remediate in seconds
+# TYPE mttr_seconds gauge
+mttr_seconds 180

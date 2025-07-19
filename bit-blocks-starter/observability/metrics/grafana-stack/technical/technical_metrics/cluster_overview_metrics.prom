@@ -1,0 +1,58 @@
+# HELP node_cpu_seconds_total Total CPU seconds.
+# TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{mode="user",instance="instance1"} 100
+node_cpu_seconds_total{mode="system",instance="instance1"} 50
+node_cpu_seconds_total{mode="idle",instance="instance1"} 850
+node_cpu_seconds_total{mode="user",instance="instance2"} 120
+node_cpu_seconds_total{mode="system",instance="instance2"} 60
+node_cpu_seconds_total{mode="idle",instance="instance2"} 820
+
+# HELP node_memory_Active_bytes Active memory in bytes.
+# TYPE node_memory_Active_bytes gauge
+node_memory_Active_bytes 4000000000
+
+# HELP node_memory_MemTotal_bytes Total memory in bytes.
+# TYPE node_memory_MemTotal_bytes gauge
+node_memory_MemTotal_bytes 8000000000
+
+# HELP node_filesystem_size_bytes Filesystem total size in bytes.
+# TYPE node_filesystem_size_bytes gauge
+node_filesystem_size_bytes{mountpoint="/",fstype="ext4"}       100000000000
+node_filesystem_size_bytes{mountpoint="/var",fstype="ext4"}    50000000000
+
+# HELP node_filesystem_free_bytes Filesystem free bytes.
+# TYPE node_filesystem_free_bytes gauge
+node_filesystem_free_bytes{mountpoint="/",fstype="ext4"}       60000000000
+node_filesystem_free_bytes{mountpoint="/var",fstype="ext4"}    20000000000
+
+# HELP node_network_receive_bytes_total Network receive bytes total.
+# TYPE node_network_receive_bytes_total counter
+node_network_receive_bytes_total{instance="instance1"} 1000000000
+node_network_receive_bytes_total{instance="instance2"} 2000000000
+
+# HELP node_network_transmit_bytes_total Network transmit bytes total.
+# TYPE node_network_transmit_bytes_total counter
+node_network_transmit_bytes_total{instance="instance1"} 500000000
+node_network_transmit_bytes_total{instance="instance2"} 1000000000
+
+# HELP kube_pod_info Kubernetes pod info (always 1 per pod).
+# TYPE kube_pod_info gauge
+kube_pod_info{namespace="default",pod="web-1"}       1
+kube_pod_info{namespace="default",pod="web-2"}       1
+kube_pod_info{namespace="kube-system",pod="kube-dns"} 1
+
+# HELP kube_pod_container_status_restarts_total Total container restarts.
+# TYPE kube_pod_container_status_restarts_total counter
+kube_pod_container_status_restarts_total{namespace="default",pod="web-1",container="app"}   3
+kube_pod_container_status_restarts_total{namespace="default",pod="web-2",container="app"}   1
+kube_pod_container_status_restarts_total{namespace="kube-system",pod="kube-dns",container="dns"} 0
+
+# HELP node_disk_read_bytes_total Disk read bytes total.
+# TYPE node_disk_read_bytes_total counter
+node_disk_read_bytes_total{instance="instance1"}  500000000
+node_disk_read_bytes_total{instance="instance2"} 1000000000
+
+# HELP node_disk_written_bytes_total Disk written bytes total.
+# TYPE node_disk_written_bytes_total counter
+node_disk_written_bytes_total{instance="instance1"} 200000000
+node_disk_written_bytes_total{instance="instance2"} 400000000

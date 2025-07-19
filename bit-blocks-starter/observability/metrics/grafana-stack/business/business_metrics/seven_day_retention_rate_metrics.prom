@@ -1,0 +1,36 @@
+# retention_rate_metrics.prom
+
+# HELP business_new_users_total Total number of new users per day.
+# TYPE business_new_users_total counter
+business_new_users_total{region="us-east"} 100
+business_new_users_total{region="us-west"} 50
+business_new_users_total{region="eu-central"} 70
+
+# Simulate next scrape (to get a non-zero increase over 1d)
+business_new_users_total{region="us-east"} 200
+business_new_users_total{region="us-west"} 100
+business_new_users_total{region="eu-central"} 140
+
+# HELP business_retained_users_7d_total Total number of users retained 7 days after signup.
+# TYPE business_retained_users_7d_total counter
+business_retained_users_7d_total{region="us-east"} 20
+business_retained_users_7d_total{region="us-west"} 10
+business_retained_users_7d_total{region="eu-central"} 14
+
+# Simulate next scrape (to get a non-zero increase over 1d)
+business_retained_users_7d_total{region="us-east"} 100
+business_retained_users_7d_total{region="us-west"} 50
+business_retained_users_7d_total{region="eu-central"} 84
+
+# HELP business_retention_total Retention counts by cohort and days since registration.
+# TYPE business_retention_total counter
+business_retention_total{region="us-east",cohort_day="2025-06-28",days_since_registration="0"} 100
+business_retention_total{region="us-east",cohort_day="2025-06-28",days_since_registration="7"} 50
+business_retention_total{region="us-west",cohort_day="2025-06-28",days_since_registration="0"} 50
+business_retention_total{region="us-west",cohort_day="2025-06-28",days_since_registration="7"} 30
+
+# Simulate next scrape (for increase over 1d)
+business_retention_total{region="us-east",cohort_day="2025-06-28",days_since_registration="0"} 200
+business_retention_total{region="us-east",cohort_day="2025-06-28",days_since_registration="7"} 150
+business_retention_total{region="us-west",cohort_day="2025-06-28",days_since_registration="0"} 100
+business_retention_total{region="us-west",cohort_day="2025-06-28",days_since_registration="7"} 60

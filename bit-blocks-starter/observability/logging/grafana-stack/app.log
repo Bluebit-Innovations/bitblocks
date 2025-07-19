@@ -1,0 +1,64 @@
+2025-07-11T00:00:00Z [INFO]  main.go:45    Application starting up
+2025-07-11T00:00:10Z [INFO]  handler.go:88 Processing request id=abcd1234
+2025-07-11T00:00:20Z [WARN]  cache.go:52   Cache miss for key=user:42
+2025-07-11T00:00:25Z [ERROR] db.go:120     Failed to connect to database
+2025-07-11T00:00:30Z [INFO]  handler.go:94 Request complete id=abcd1234
+2025-07-11T00:01:00Z [ERROR] handler.go:100 Timeout while calling downstream service
+2025-07-11T00:01:15Z [WARN]  auth.go:30    Token expired for user=joe
+2025-07-11T00:01:45Z [INFO]  scheduler.go:75 Scheduled job=cleanup  
+2025-07-11T00:02:00Z [INFO]  main.go:50    Application health check passed
+2025-07-11T00:02:10Z [INFO]  handler.go:88 Processing request id=efgh5678
+2025-07-11T00:02:20Z [WARN]  cache.go:52   Cache miss for key=user:43
+2025-07-11T00:02:25Z [ERROR] db.go:120     Failed to execute query
+2025-07-11T00:02:30Z [INFO]  handler.go:94 Request complete id=efgh5678
+2025-07-11T00:03:00Z [ERROR] handler.go:100 Timeout while fetching data
+2025-07-11T00:03:15Z [WARN]  auth.go:30    Token expired for user=alice
+2025-07-11T00:03:45Z [INFO]  scheduler.go:75 Scheduled job=backup
+2025-07-11T00:04:00Z [INFO]  main.go:50    Application health check passed
+2025-07-11T00:04:10Z [INFO]  handler.go:88 Processing request id=ijkl9012
+2025-07-11T00:04:20Z [WARN]  cache.go:52   Cache miss for key=user:44
+2025-07-11T00:04:25Z [ERROR] db.go:120     Failed to update record
+2025-07-11T00:04:30Z [INFO]  handler.go:94 Request complete id=ijkl9012
+2025-07-11T00:05:00Z [ERROR] handler.go:100 Timeout while calling external API
+2025-07-11T00:05:15Z [WARN]  auth.go:30    Token expired for user=bob
+2025-07-11T00:05:45Z [INFO]  scheduler.go:75 Scheduled job=cleanup
+2025-07-11T00:06:00Z [INFO]  main.go:50    Application health check passed
+2025-07-11T00:06:10Z [INFO]  handler.go:88 Processing request id=mnop3456
+2025-07-11T00:06:20Z [WARN]  cache.go:52   Cache miss for key=user:45
+2025-07-11T00:06:25Z [ERROR] db.go:120     Failed to delete record
+2025-07-11T00:06:30Z [INFO]  handler.go:94 Request complete id=mnop3456
+2025-07-11T00:07:00Z [ERROR] handler.go:100 Timeout while retrieving data
+2025-07-11T00:07:15Z [WARN]  auth.go:30    Token expired for user=charlie
+2025-07-11T00:07:45Z [INFO]  scheduler.go:75 Scheduled job=backup
+2025-07-11T00:08:00Z [INFO]  main.go:50    Application health check passed
+2025-07-11T00:08:10Z [INFO]  handler.go:88 Processing request id=qrst7890
+2025-07-11T00:08:20Z [WARN]  cache.go:52   Cache miss for key=user:46
+2025-07-11T00:08:25Z [ERROR] db.go:120     Failed to fetch record
+2025-07-11T00:08:30Z [INFO]  handler.go:94 Request complete id=qrst7890
+2025-07-11T00:09:00Z [ERROR] handler.go:100 Timeout while connecting to service
+2025-07-11T00:09:15Z [WARN]  auth.go:30    Token expired for user=dave
+2025-07-11T00:09:45Z [INFO]  scheduler.go:75 Scheduled job=cleanup
+2025-07-11T00:10:00Z [INFO]  main.go:50    Application health check passed
+2025-07-11T00:10:10Z [INFO]  handler.go:88 Processing request id=uvwx1234
+2025-07-11T00:10:20Z [WARN]  cache.go:52   Cache miss for key=user:47
+2025-07-11T00:10:25Z [ERROR] db.go:120     Failed to insert record
+2025-07-11T00:10:30Z [INFO]  handler.go:94 Request complete id=uvwx1234
+2025-07-11T00:11:00Z [ERROR] handler.go:100 Timeout while processing request
+2025-07-11T00:11:15Z [WARN]  auth.go:30    Token expired for user=emma
+2025-07-11T00:11:45Z [INFO]  scheduler.go:75 Scheduled job=backup
+2025-07-11T00:12:00Z [INFO]  main.go:50    Application health check passed
+2025-07-11T00:12:10Z [INFO]  handler.go:88 Processing request id=yzab5678
+2025-07-11T00:12:20Z [WARN]  cache.go:52   Cache miss for key=user:48
+2025-07-11T00:12:25Z [ERROR] db.go:120     Failed to read record
+2025-07-11T00:12:30Z [INFO]  handler.go:94 Request complete id=yzab5678
+2025-07-11T00:13:00Z [ERROR] handler.go:100 Timeout while accessing resource
+2025-07-11T00:13:15Z [WARN]  auth.go:30    Token expired for user=frank
+2025-07-11T00:13:45Z [INFO]  scheduler.go:75 Scheduled job=cleanup
+2025-07-11T00:14:00Z [INFO]  main.go:50    Application health check passed
+2025-07-11T00:14:10Z [INFO]  handler.go:88 Processing request id=cdef9012
+2025-07-11T00:14:20Z [WARN]  cache.go:52   Cache miss for key=user:49
+2025-07-11T00:14:25Z [ERROR] db.go:120     Failed to update record
+2025-07-11T00:14:30Z [INFO]  handler.go:94 Request complete id=cdef9012
+2025-07-11T00:15:00Z [ERROR] handler.go:100 Timeout while fetching data
+2025-07-11T00:15:15Z [WARN]  auth.go:30    Token expired for user=george
+2025-07-11T00:15:45Z [INFO]  scheduler.go:75 Scheduled job=backup

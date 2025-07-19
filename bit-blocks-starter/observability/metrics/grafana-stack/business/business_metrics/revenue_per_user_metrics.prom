@@ -1,0 +1,35 @@
+# revenue_per_user_metrics.prom
+
+# HELP business_revenue_total Total revenue per day in USD.
+# TYPE business_revenue_total counter
+business_revenue_total{region="us-east",segment="free"}    10000
+business_revenue_total{region="us-east",segment="premium"} 20000
+business_revenue_total{region="us-west",segment="free"}     8000
+business_revenue_total{region="us-west",segment="premium"} 15000
+business_revenue_total{region="eu-central",segment="free"}  7000
+business_revenue_total{region="eu-central",segment="premium"} 12000
+
+# Simulate next scrape to allow increase() over 1d
+business_revenue_total{region="us-east",segment="free"}    11000
+business_revenue_total{region="us-east",segment="premium"} 22000
+business_revenue_total{region="us-west",segment="free"}     9000
+business_revenue_total{region="us-west",segment="premium"} 16000
+business_revenue_total{region="eu-central",segment="free"}  8000
+business_revenue_total{region="eu-central",segment="premium"} 13000
+
+# HELP business_active_users_total Total active users per day.
+# TYPE business_active_users_total counter
+business_active_users_total{region="us-east",segment="free"}    5000
+business_active_users_total{region="us-east",segment="premium"} 2500
+business_active_users_total{region="us-west",segment="free"}    3000
+business_active_users_total{region="us-west",segment="premium"} 1500
+business_active_users_total{region="eu-central",segment="free"} 2800
+business_active_users_total{region="eu-central",segment="premium"} 1300
+
+# Simulate next scrape to allow increase() over 1d
+business_active_users_total{region="us-east",segment="free"}    5500
+business_active_users_total{region="us-east",segment="premium"} 2750
+business_active_users_total{region="us-west",segment="free"}    3300
+business_active_users_total{region="us-west",segment="premium"} 1650
+business_active_users_total{region="eu-central",segment="free"} 3080
+business_active_users_total{region="eu-central",segment="premium"} 1430

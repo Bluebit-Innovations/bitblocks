@@ -1,0 +1,48 @@
+# tracing_summary_metrics.prom
+
+# Histogram of span durations (seconds)
+# HELP tempo_span_duration_seconds_bucket Bucketed span durations
+# TYPE tempo_span_duration_seconds_bucket histogram
+tempo_span_duration_seconds_bucket{le="0.05",service="svc1"}  10
+tempo_span_duration_seconds_bucket{le="0.1",service="svc1"}   25
+tempo_span_duration_seconds_bucket{le="0.5",service="svc1"}   80
+tempo_span_duration_seconds_bucket{le="1",service="svc1"}     100
+tempo_span_duration_seconds_bucket{le="+Inf",service="svc1"}  120
+
+tempo_span_duration_seconds_bucket{le="0.05",service="svc2"}  5
+tempo_span_duration_seconds_bucket{le="0.1",service="svc2"}   15
+tempo_span_duration_seconds_bucket{le="0.5",service="svc2"}   60
+tempo_span_duration_seconds_bucket{le="1",service="svc2"}     80
+tempo_span_duration_seconds_bucket{le="+Inf",service="svc2"}  100
+
+# Add endpoint-level buckets for “Slowest Endpoints”
+tempo_span_duration_seconds_bucket{le="0.05",service="svc1",endpoint="/login"}   4
+tempo_span_duration_seconds_bucket{le="0.1",service="svc1",endpoint="/login"}    10
+tempo_span_duration_seconds_bucket{le="0.5",service="svc1",endpoint="/login"}    30
+tempo_span_duration_seconds_bucket{le="1",service="svc1",endpoint="/login"}      40
+tempo_span_duration_seconds_bucket{le="+Inf",service="svc1",endpoint="/login"}   50
+
+tempo_span_duration_seconds_bucket{le="0.05",service="svc1",endpoint="/orders"}  6
+tempo_span_duration_seconds_bucket{le="0.1",service="svc1",endpoint="/orders"}   15
+tempo_span_duration_seconds_bucket{le="0.5",service="svc1",endpoint="/orders"}   50
+tempo_span_duration_seconds_bucket{le="1",service="svc1",endpoint="/orders"}     60
+tempo_span_duration_seconds_bucket{le="+Inf",service="svc1",endpoint="/orders"}  70
+
+# COUNT and SUM for histogram (optional, but good practice)
+# TYPE tempo_span_duration_seconds_count counter
+tempo_span_duration_seconds_count{service="svc1"} 120
+tempo_span_duration_seconds_count{service="svc2"} 100
+# TYPE tempo_span_duration_seconds_sum counter
+tempo_span_duration_seconds_sum{service="svc1"}  15.3
+tempo_span_duration_seconds_sum{service="svc2"}   9.8
+
+# Total spans received
+# TYPE tempo_spans_received_total counter
+tempo_spans_received_total{service="svc1"}           1000
+tempo_spans_received_total{service="svc2"}            600
+tempo_spans_received_total{trace_id="traceA"}         50
+tempo_spans_received_total{trace_id="traceB"}         30
+
+# Error spans per trace
+tempo_spans_received_total{trace_id="traceA",result="error"}  5
+tempo_spans_received_total{trace_id="traceB",result="error"}  3

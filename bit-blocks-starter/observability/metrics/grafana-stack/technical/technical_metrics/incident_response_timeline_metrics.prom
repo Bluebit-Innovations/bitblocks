@@ -1,0 +1,60 @@
+# File: incident_response_metrics.prom
+# -------------------------------
+# Incident events counter, labeled by severity and root cause
+# -------------------------------
+# HELP incident_events_total Total number of incident events
+# TYPE incident_events_total counter
+incident_events_total{severity="P1",root_cause="code_bug"} 5
+incident_events_total{severity="P2",root_cause="infrastructure"} 12
+incident_events_total{severity="P3",root_cause="network"} 30
+
+# -------------------------------
+# Acknowledgement latency (seconds) per incident
+# -------------------------------
+# HELP incident_ack_time_seconds Time from alert firing to first acknowledgement
+# TYPE incident_ack_time_seconds gauge
+incident_ack_time_seconds{incident="INC-001"} 120
+incident_ack_time_seconds{incident="INC-002"}  90
+incident_ack_time_seconds{incident="INC-003"} 150
+
+# -------------------------------
+# Resolution latency (seconds) per incident
+# -------------------------------
+# HELP incident_resolution_time_seconds Time from incident creation to resolution
+# TYPE incident_resolution_time_seconds gauge
+incident_resolution_time_seconds{incident="INC-001"} 3600
+incident_resolution_time_seconds{incident="INC-002"} 2700
+incident_resolution_time_seconds{incident="INC-003"} 5400
+
+# -------------------------------
+# Open vs. closed incident gauge counts
+# -------------------------------
+# HELP incident_open_total Number of currently open incidents
+# TYPE incident_open_total gauge
+incident_open_total 3
+# HELP incident_closed_total Number of incidents closed in period
+# TYPE incident_closed_total gauge
+incident_closed_total 27
+
+# -------------------------------
+# SLA compliance
+# -------------------------------
+# HELP incident_sla_met_total Number of incidents resolved within SLA
+# TYPE incident_sla_met_total gauge
+incident_sla_met_total 22
+
+# -------------------------------
+# On‐call assignments per engineer (counter)
+# -------------------------------
+# HELP incident_assigned_total Total incident assignments per engineer
+# TYPE incident_assigned_total counter
+incident_assigned_total{engineer="alice"} 10
+incident_assigned_total{engineer="bob"} 8
+incident_assigned_total{engineer="carol"} 9
+
+# -------------------------------
+# Raw alert volume
+# -------------------------------
+# HELP alerts_total Total number of raw alerts fired
+# TYPE alerts_total counter
+alerts_total  100

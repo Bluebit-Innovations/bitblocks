@@ -1,0 +1,70 @@
+# Sample Prometheus metrics for Customer Lifetime Value (CLV) dashboard
+# Generated to match dashboard queries
+
+# HELP revenue_total Total revenue over time
+# TYPE revenue_total gauge
+revenue_total{job="clv_app"} 12500.50
+revenue_total{job="clv_app"} 13075.75
+
+# HELP users_active Number of active users over time
+# TYPE users_active gauge
+users_active{job="clv_app"} 250
+users_active{job="clv_app"} 260
+
+# HELP marketing_cost_total Total marketing cost accumulated over 30 days
+# TYPE marketing_cost_total gauge
+marketing_cost_total{job="clv_app"} 4200.00
+marketing_cost_total{job="clv_app"} 4300.00
+
+# HELP actual_clv Observed Customer Lifetime Value
+# TYPE actual_clv gauge
+actual_clv{job="clv_app"} 150.25
+actual_clv{job="clv_app"} 152.75
+
+# HELP forecast_clv Forecasted Customer Lifetime Value
+# TYPE forecast_clv gauge
+forecast_clv{job="clv_app"} 160.00
+forecast_clv{job="clv_app"} 162.50
+
+# HELP churn_total Total number of churned users
+# TYPE churn_total counter
+churn_total{job="clv_app"} 5
+churn_total{job="clv_app"} 7
+
+# HELP user_revenue_bucket Revenue distribution histogram buckets per user
+# TYPE user_revenue_bucket histogram
+user_revenue_bucket{job="clv_app",le="50"} 150
+user_revenue_bucket{job="clv_app",le="100"} 300
+user_revenue_bucket{job="clv_app",le="200"} 50
+user_revenue_bucket{job="clv_app",le="+Inf"} 5
+
+# HELP first_purchase_total Count of first purchases in last 30 days
+# TYPE first_purchase_total counter
+first_purchase_total{job="clv_app"} 120
+first_purchase_total{job="clv_app"} 130
+
+# HELP second_purchase_total Count of second purchases in last 30 days
+# TYPE second_purchase_total counter
+second_purchase_total{job="clv_app"} 60
+second_purchase_total{job="clv_app"} 65
+
+# HELP time_to_second_purchase_seconds_bucket Histogram of time to second purchase (seconds)
+# TYPE time_to_second_purchase_seconds_bucket histogram
+time_to_second_purchase_seconds_bucket{job="clv_app",le="86400"} 40
+time_to_second_purchase_seconds_bucket{job="clv_app",le="172800"} 55
+time_to_second_purchase_seconds_bucket{job="clv_app",le="+Inf"} 65
+
+# HELP cohort_retention_percent Monthly cohort retention percentage
+# TYPE cohort_retention_percent gauge
+cohort_retention_percent{job="clv_app",cohort="2025-01",month="0"} 100
+cohort_retention_percent{job="clv_app",cohort="2025-01",month="1"} 75
+cohort_retention_percent{job="clv_app",cohort="2025-01",month="2"} 60
+cohort_retention_percent{job="clv_app",cohort="2025-02",month="0"} 100
+cohort_retention_percent{job="clv_app",cohort="2025-02",month="1"} 80
+cohort_retention_percent{job="clv_app",cohort="2025-02",month="2"} 65
+
+# HELP revenue_by_segment Total revenue broken out by customer segment
+# TYPE revenue_by_segment gauge
+revenue_by_segment{job="clv_app",segment="enterprise"} 8000.00
+revenue_by_segment{job="clv_app",segment="mid_market"} 3500.50
+revenue_by_segment{job="clv_app",segment="small_business"} 1550.75

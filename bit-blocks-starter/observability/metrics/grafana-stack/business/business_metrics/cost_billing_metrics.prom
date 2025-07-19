@@ -1,0 +1,74 @@
+# metrics.prom — sample Cost & Billing Analytics metrics
+
+# Total Spend Over Time
+# HELP cost_total_spend Total cumulative spend in USD
+# TYPE cost_total_spend gauge
+cost_total_spend{cluster="cluster-01"}  12000
+cost_total_spend{cluster="cluster-01"}  13500
+
+# Spend by Service
+# HELP cost_service_spend Spend per service in USD
+# TYPE cost_service_spend gauge
+cost_service_spend{service="ec2",cluster="cluster-01"}      5000
+cost_service_spend{service="s3",cluster="cluster-01"}       3000
+cost_service_spend{service="rds",cluster="cluster-01"}      2500
+cost_service_spend{service="kubernetes",cluster="cluster-01"}  3000
+
+# Daily Spend Heatmap
+# HELP cost_daily_spend Daily total spend in USD
+# TYPE cost_daily_spend gauge
+cost_daily_spend{date="2025-07-01"}  400
+cost_daily_spend{date="2025-07-02"}  450
+cost_daily_spend{date="2025-07-03"}  500
+cost_daily_spend{date="2025-07-04"}  480
+cost_daily_spend{date="2025-07-05"}  520
+
+# Budget vs Actual
+# HELP cost_budget_used Amount of budget used so far in USD
+# TYPE cost_budget_used gauge
+cost_budget_used{month="2025-07"}   3000
+# HELP cost_budget_total Total monthly budget in USD
+# TYPE cost_budget_total gauge
+cost_budget_total{month="2025-07"}  5000
+
+# Forecasted Spend
+# HELP cost_forecasted_spend Forecasted end-of-month spend in USD
+# TYPE cost_forecasted_spend gauge
+cost_forecasted_spend{month="2025-07"}  5500
+
+# Cost Anomaly Detection
+# HELP cost_spike_anomaly Flag indicating a cost anomaly (1=true)
+# TYPE cost_spike_anomaly gauge
+cost_spike_anomaly{service="ec2",severity="high"}  1
+cost_spike_anomaly{service="s3",severity="low"}   0
+
+# Cost by Environment/Tag
+# HELP cost_env_spend Spend per environment in USD
+# TYPE cost_env_spend gauge
+cost_env_spend{env="prod"}     9000
+cost_env_spend{env="staging"}  3000
+
+# Waste & Idle Resource Cost
+# HELP cost_idle_resource Spend on idle or underutilized resources in USD
+# TYPE cost_idle_resource gauge
+cost_idle_resource{resource="unattached_volume"}  200
+cost_idle_resource{resource="idle_vm"}            150
+
+# Top 10 Expensive Resources
+# HELP cost_resource Spend per individual resource in USD
+# TYPE cost_resource gauge
+cost_resource{resource="vm-1234"}   1200
+cost_resource{resource="db-5678"}   800
+cost_resource{resource="bucket-9012"}  600
+# ... (add up to top 10 for testing)
+
+# Cost per Active User
+# HELP cost_per_active_user Ratio of cost to active user ($ per MAU)
+# TYPE cost_per_active_user gauge
+cost_per_active_user  0.75
+
+# Reserved vs On-Demand Usage
+# HELP cost_instance_type_spend Spend by instance purchasing model in USD
+# TYPE cost_instance_type_spend gauge
+cost_instance_type_spend{type="reserved"}   7000
+cost_instance_type_spend{type="on_demand"}  5000

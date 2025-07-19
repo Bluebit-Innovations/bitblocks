@@ -1,0 +1,11 @@
+<configuration>
+  <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    <http>
+      <url>http://localhost:3100/loki/api/v1/push</url>
+    </http>
+  </appender>
+  <root level="INFO">
+    <appender-ref ref="LOKI"/>
+  </root>
+</configuration>

@@ -1,0 +1,133 @@
+{
+  "id": null,
+  "uid": "k8s-cost-analytics",
+  "title": "Kubernetes Cost Analytics",
+  "tags": ["kubernetes", "cost", "kubecost", "cloud-native"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "style": "dark",
+  "editable": true,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total K8s Spend (Last 30d)",
+      "id": 1,
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum(kubecost_cluster_cost_total)",
+          "legendFormat": "Total Cost",
+          "interval": ""
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 }
+    },
+    {
+      "type": "bar",
+      "title": "K8s Cost by Namespace",
+      "id": 2,
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum by (namespace) (kubecost_namespace_cost_total)",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "gridPos": { "x": 4, "y": 0, "w": 8, "h": 8 }
+    },
+    {
+      "type": "bar",
+      "title": "Cost per Deployment",
+      "id": 3,
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum by (deployment) (kubecost_pod_cost_total)",
+          "legendFormat": "{{deployment}}"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 4, "w": 8, "h": 8 }
+    },
+    {
+      "type": "stat",
+      "title": "Resource Efficiency ($/CPU)",
+      "id": 4,
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum(kubecost_cluster_cost_total) / sum(kube_pod_container_resource_requests_cpu_cores)",
+          "legendFormat": "Cost per CPU"
+        }
+      ],
+      "gridPos": { "x": 8, "y": 8, "w": 4, "h": 4 }
+    },
+    {
+      "type": "stat",
+      "title": "Resource Efficiency ($/RAM GB)",
+      "id": 5,
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum(kubecost_cluster_cost_total) / (sum(kube_pod_container_resource_requests_memory_bytes) / 1073741824)",
+          "legendFormat": "Cost per GB RAM"
+        }
+      ],
+      "gridPos": { "x": 8, "y": 12, "w": 4, "h": 4 }
+    },
+    {
+      "type": "stat",
+      "title": "Savings Opportunities",
+      "id": 6,
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum(kubecost_savings_opportunity_total)",
+          "legendFormat": "Potential Savings"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 12, "w": 4, "h": 4 }
+    },
+    {
+      "type": "bar",
+      "title": "Top 5 Expensive Namespaces",
+      "id": 7,
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "topk(5, sum by (namespace) (kubecost_namespace_cost_total))",
+          "legendFormat": "{{namespace}}"
+        }
+      ],
+      "gridPos": { "x": 4, "y": 12, "w": 4, "h": 4 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Cost Trend (Last 30 Days)",
+      "id": 8,
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum(kubecost_cluster_cost_total)",
+          "legendFormat": "Total Cost"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 16, "w": 8, "h": 8 }
+    },
+    {
+      "type": "stat",
+      "title": "Anomaly Alerts (Cost Spikes)",
+      "id": 9,
+      "datasource": "${DS_PROMETHEUS}",
+      "description": "Alerts if cost jumps 50%+ over previous day",
+      "targets": [
+        {
+          "expr": "increase(kubecost_cluster_cost_total[1d]) > (sum(kubecost_cluster_cost_total offset 1d) * 0.5)",
+          "legendFormat": "Anomaly Detected"
+        }
+      ],
+      "gridPos": { "x": 8, "y": 16, "w": 4, "h": 4 }
+    }
+  ]
+}

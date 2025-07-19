@@ -1,0 +1,41 @@
+# sample_alert_metrics.prom
+
+# HELP alerts_total Total number of alerts triggered
+# TYPE alerts_total gauge
+alerts_total{service="auth",severity="critical"} 5
+alerts_total{service="auth",severity="warning"} 12
+alerts_total{service="payment",severity="critical"} 2
+alerts_total{service="payment",severity="warning"} 8
+alerts_total{service="db",severity="critical"} 1
+alerts_total{service="db",severity="warning"} 3
+
+# HELP alerts_resolved_total Total number of alerts resolved
+# TYPE alerts_resolved_total counter
+alerts_resolved_total{service="auth",severity="critical"} 4
+alerts_resolved_total{service="auth",severity="warning"} 10
+alerts_resolved_total{service="payment",severity="critical"} 1
+alerts_resolved_total{service="payment",severity="warning"} 6
+alerts_resolved_total{service="db",severity="critical"} 1
+alerts_resolved_total{service="db",severity="warning"} 2
+
+# HELP alerts_mttd_seconds Mean time to detect an alert
+# TYPE alerts_mttd_seconds gauge
+alerts_mttd_seconds 45.5
+
+# HELP alerts_mtta_seconds Mean time to acknowledge an alert
+# TYPE alerts_mtta_seconds gauge
+alerts_mtta_seconds 30.2
+
+# HELP alerts_mttr_seconds Mean time to resolve an alert
+# TYPE alerts_mttr_seconds gauge
+alerts_mttr_seconds 120.7
+
+# HELP error_budget_remaining Remaining error budget fraction (0–1)
+# TYPE error_budget_remaining gauge
+error_budget_remaining 0.85
+
+# HELP alerts_latest_incidents Dummy flag per latest incident
+# TYPE alerts_latest_incidents gauge
+alerts_latest_incidents{incident="INC-2025-001"} 1
+alerts_latest_incidents{incident="INC-2025-002"} 1
+alerts_latest_incidents{incident="INC-2025-003"} 1

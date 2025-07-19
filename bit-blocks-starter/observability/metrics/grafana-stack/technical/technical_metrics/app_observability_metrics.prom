@@ -1,0 +1,46 @@
+# ────────────────────────────────────────────────────────────────
+# 1. HTTP request counts (for RPS & Error Rate)
+# ────────────────────────────────────────────────────────────────
+# HELP http_requests_total Total HTTP requests received.
+# TYPE http_requests_total counter
+http_requests_total{method="GET",handler="/api/users",status="200"} 10234
+http_requests_total{method="POST",handler="/api/orders",status="200"} 5234
+http_requests_total{method="GET",handler="/api/products",status="500"} 23
+
+# ────────────────────────────────────────────────────────────────
+# 2. HTTP latency histogram (for P95/P99 panels)
+# ────────────────────────────────────────────────────────────────
+# HELP http_request_duration_seconds HTTP request latency histogram.
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{le="0.1"} 2400
+http_request_duration_seconds_bucket{le="0.3"} 3000
+http_request_duration_seconds_bucket{le="1"} 3200
+http_request_duration_seconds_bucket{le="+Inf"} 3250
+http_request_duration_seconds_sum 123.45
+http_request_duration_seconds_count 3250
+
+# ────────────────────────────────────────────────────────────────
+# 3. CPU usage counter (for the CPU Usage stat)
+# ────────────────────────────────────────────────────────────────
+# HELP process_cpu_seconds_total Total user+system CPU time spent by the app.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 12345.67
+
+# ────────────────────────────────────────────────────────────────
+# 4. DB query latency histogram (DB p95 Latency)
+# ────────────────────────────────────────────────────────────────
+# HELP db_query_duration_seconds DB query latency histogram.
+# TYPE db_query_duration_seconds histogram
+db_query_duration_seconds_bucket{le="0.01"} 500
+db_query_duration_seconds_bucket{le="0.05"} 550
+db_query_duration_seconds_bucket{le="0.1"} 580
+db_query_duration_seconds_bucket{le="+Inf"} 600
+db_query_duration_seconds_sum 5.5
+db_query_duration_seconds_count 600
+
+# ────────────────────────────────────────────────────────────────
+# 5. External API errors (for External API Errors panel)
+# ────────────────────────────────────────────────────────────────
+# HELP external_api_errors Counter of external API errors.
+# TYPE external_api_errors counter
+external_api_errors{api="payment_service"} 5
