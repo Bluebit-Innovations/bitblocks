@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: myapp-db-backup
+  namespace: default
+  labels:
+    app.kubernetes.io/name: myapp
+    app.kubernetes.io/component: maintenance
+spec:
+  schedule: "0 2 * * *"                # daily at 02:00
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: myapp
+            app.kubernetes.io/component: maintenance
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: backup
+              image: ghcr.io/your-org/pgbackup:latest   # replace with your backup image
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - secretRef:
+                    name: myapp-backup-secrets          # contains DB creds & storage creds
+                - configMapRef:
+                    name: myapp-backup-config           # contains non-secret backup config
+              args:
+                - "/bin/sh"
+                - "-c"
+                - >
+                  pg_dump -h $DB_HOST -U $DB_USER -d $DB_NAME
+                  | gzip > /backup/backup-$(date +%F-%H%M).sql.gz
+                  && ./upload-to-object-storage.sh /backup/*.gz
+              volumeMounts:
+                - name: backup-tmp
+                  mountPath: /backup
+          volumes:
+            - name: backup-tmp
+              emptyDir: {}

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+  namespace: default
+  labels:
+    app.kubernetes.io/name: myapp
+    app.kubernetes.io/instance: myapp
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: myapp
+    app.kubernetes.io/instance: myapp
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

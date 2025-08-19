@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-config
+  namespace: default
+data:
+  # Adjust to your workload
+  BACKUP_NAME: "myapp-postgres"
+  # Options: "s3-presigned" or "rclone"
+  BACKUP_UPLOAD_MODE: "s3-presigned"
+  # Optional: prune older local files kept on the pod (minutes)
+  LOCAL_RETENTION_MINUTES: "120"
+  # rclone remote name (if using rclone mode)
+  RCLONE_REMOTE: "s3remote"
+  # Target path in the bucket (e.g., s3remote:mybucket/db-backups/)
+  RCLONE_TARGET_PATH: "s3remote:mybucket/db-backups/"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backup-secrets
+  namespace: default
+type: Opaque
+stringData:
+  # DB connection (Postgres example). Replace for MySQL/Mongo as needed.
+  DB_HOST: "postgres.default.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_USER: "appuser"
+  DB_PASSWORD: "apppassword"
+  DB_NAME: "appdb"
+
+  # If using S3-presigned upload, provide a NEW presigned URL for every run (secure, time-limited).
+  # You can rotate this via your CI, an external secrets manager, or a short-lived K8s Secret.
+  PRESIGNED_URL: ""
+
+  # If using rclone mode (S3 or other remotes), rclone.conf must be provided here.
+  # See: https://rclone.org/docs/
+  RCLONE_CONF: |
+    [s3remote]
+    type = s3
+    provider = AWS
+    env_auth = false
+    access_key_id = YOUR_ACCESS_KEY
+    secret_access_key = YOUR_SECRET
+    region = us-east-1
+    endpoint =
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: db-backup
+  namespace: default
+  labels:
+    app.kubernetes.io/name: backup
+    app.kubernetes.io/component: maintenance
+spec:
+  schedule: "0 2 * * *"                      # daily @ 02:00
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: backup
+            app.kubernetes.io/component: maintenance
+        spec:
+          serviceAccountName: backup-runner    # see rbac-minimal.yml (optional)
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumes:
+            - name: backup-tmp
+              emptyDir: {}
+            - name: rclone-conf
+              secret:
+                secretName: backup-secrets
+                items:
+                  - key: RCLONE_CONF
+                    path: rclone.conf
+          containers:
+            - name: backup
+              # Using Alpine to install tiny clients at runtime without baking custom images
+              image: alpine:3.20
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - secretRef:
+                    name: backup-secrets
+                - configMapRef:
+                    name: backup-config
+              volumeMounts:
+                - name: backup-tmp
+                  mountPath: /backup
+                - name: rclone-conf
+                  mountPath: /root/.config/rclone
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+              args:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+
+                  # --- install minimal tooling ---
+                  apk add --no-cache postgresql15-client curl rclone coreutils gzip
+
+                  TS="$(date -u +'%Y%m%dT%H%M%SZ')"
+                  FILE="/backup/${BACKUP_NAME}-${TS}.sql.gz"
+
+                  echo "[*] Starting logical dump: ${BACKUP_NAME} @ ${TS}"
+
+                  # --- Postgres logical dump ---
+                  # For MySQL:  mysqldump -h $DB_HOST -P $DB_PORT -u $DB_USER -p$DB_PASSWORD $DB_NAME | gzip > "$FILE"
+                  # For Mongo:  mongodump --host "$DB_HOST" --port "$DB_PORT" --username "$DB_USER" --password "$DB_PASSWORD" --db "$DB_NAME" --archive | gzip > "$FILE"
+                  PGPASSWORD="$DB_PASSWORD" pg_dump \
+                    -h "$DB_HOST" -p "$DB_PORT" \
+                    -U "$DB_USER" -d "$DB_NAME" \
+                    -Fc | gzip > "$FILE"
+
+                  echo "[*] Dump complete: $FILE ($(du -h "$FILE" | cut -f1"))"
+
+                  case "${BACKUP_UPLOAD_MODE}" in
+                    s3-presigned)
+                      if [ -z "${PRESIGNED_URL:-}" ]; then
+                        echo "[!] PRESIGNED_URL is empty. Skipping upload."
+                        exit 1
+                      fi
+                      echo "[*] Uploading via presigned URL..."
+                      # 'curl --fail' will exit non-zero on HTTP errors (e.g., 403/5xx)
+                      curl --fail --request PUT --upload-file "$FILE" "$PRESIGNED_URL"
+                      ;;
+                    rclone)
+                      echo "[*] Uploading via rclone to ${RCLONE_TARGET_PATH}..."
+                      rclone copy "$FILE" "${RCLONE_TARGET_PATH}" --progress --transfers=1 --checkers=1
+                      ;;
+                    *)
+                      echo "[!] Unknown BACKUP_UPLOAD_MODE=${BACKUP_UPLOAD_MODE}"
+                      exit 1
+                      ;;
+                  esac
+
+                  # Optional local retention (minutes)
+                  if [ -n "${LOCAL_RETENTION_MINUTES:-}" ]; then
+                    echo "[*] Pruning local files older than ${LOCAL_RETENTION_MINUTES} minutes"
+                    find /backup -type f -mmin +${LOCAL_RETENTION_MINUTES} -delete || true
+                  fi
+
+                  echo "[*] Backup completed successfully."

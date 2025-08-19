@@ -1,0 +1,150 @@
+---
+# 1) Default deny all INGRESS
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: default
+spec:
+  podSelector: {}        # all pods in namespace
+  policyTypes:
+    - Ingress
+---
+# 2) Default deny all EGRESS
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: default
+spec:
+  podSelector: {}        # all pods in namespace
+  policyTypes:
+    - Egress
+---
+# 3) Allow ingress to myapp from Ingress Controller only (HTTP/80)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-web-from-ingress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: myapp
+      app.kubernetes.io/instance: myapp
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        # Adjust to your ingress controller labels/namespace
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+          podSelector: {}   # all pods in that namespace (controller)
+      ports:
+        - protocol: TCP
+          port: 80
+---
+# 4) Allow Prometheus (optional) to scrape myapp metrics
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-metrics-from-monitoring
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: myapp
+      app.kubernetes.io/instance: myapp
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector: {}  # your Prometheus pods
+      ports:
+        - protocol: TCP
+          port: 9100       # align with deployment annotations/port
+---
+# 5) Allow myapp to talk ONLY to postgres and redis services (ClusterIP)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-myapp-to-backends
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: myapp
+      app.kubernetes.io/instance: myapp
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres
+              app.kubernetes.io/instance: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+              app.kubernetes.io/instance: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+# 6) Allow DNS egress for all pods (TCP/UDP 53)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: default
+spec:
+  podSelector: {}   # all pods
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# 7) Allow HTTPS egress for myapp (e.g., external APIs, package registries)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-myapp-https-egress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: myapp
+      app.kubernetes.io/instance: myapp
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            # optionally exclude private ranges if not needed
+            # except:
+            #   - 10.0.0.0/8
+            #   - 172.16.0.0/12
+            #   - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
